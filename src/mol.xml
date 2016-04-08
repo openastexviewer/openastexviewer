@@ -1,0 +1,3 @@
+<panel gap="4" top="4" right="4" columns="1">
+	<bean name="mol" bean="astex.MoleculeViewer" weightx="1" weighty="1"/>
+</panel>

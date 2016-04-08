@@ -1,0 +1,1456 @@
+<!--
+Main configuration file for AstexViewer 2.0 user interface.
+
+Copyright (C) Astex Technology Ltd. 2005
+-->
+<splitpane
+  weightx="1"
+  weighty="1"
+  orientation="vertical"
+  divider="500">
+  <tabbedpane
+    name="main"
+    weightx="1"
+    weighty="1"
+    selected="0">
+    <tab
+      text="Molecules"
+      name="molecule_tab">
+      <panel
+	weightx="1"
+	weighty="1"
+	columns="1">
+	<panel>
+	  <label text="Selection mode"></label>
+	  <combobox
+	    name="selectionmode"
+	    editable="false"
+	    selected="0">
+	    <choice text="select"></choice>
+	    <choice text="append"></choice>
+	    <choice text="exclude"></choice>
+	  </combobox>
+	  <button
+	    text="invert"
+	    action="execute(this)"
+	    property="command=invert all">
+	  </button>
+	</panel>
+	<panel
+	  weightx="1"
+	  weighty="1"
+	  columns="2">
+	  <tree
+	    angle="true"
+	    line="false"
+	    name="molecule_tree"
+	    selection="multiple"
+	    expand="expandNode(this)"
+	    action="actionNode(this,selectionmode)"
+	    perform="performNode(this)"
+	    init="initialiseMolecules(this)"
+	    weightx="1"
+	    weighty="1">
+	    <popupmenu>
+	      <menu text="Display">
+	      <menuitem text="Lines"
+		property="command=display lines on %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Sticks"
+		property="command=display sticks on %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Cylinders"
+		property="command=display cylinders on %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Spheres"
+		property="command=display spheres on %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	    </menu>
+	      <menu text="Hide">
+	      <menuitem text="Lines"
+		property="command=display lines off %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Sticks"
+		property="command=display sticks off %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Cylinders"
+		property="command=display cylinders off %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Spheres"
+		property="command=display spheres off %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	    </menu>
+	      <menu text="Color by">
+	      <menuitem text="Element type"
+		property="command=push|select %s|color_by_atom|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Rainbow"
+		property="command=color_by_rainbow %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Rainbow (C only)"
+		property="command=color_by_rainbow %s and element 6|"
+		action="processPopup(this)">
+	      </menuitem>
+	    </menu>
+	      <menu text="Color">
+	      <menuitem text="Red"
+		property="command=color red %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Green"
+		property="command=color green %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Blue"
+		property="command=color blue %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Yellow"
+		property="command=color yellow %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Orange"
+		property="command=color orange %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	      <menuitem text="Cyan"
+		property="command=color cyan %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	    </menu>
+	      <separator>
+	      </separator>
+	      <menuitem text="Center"
+		property="command=center %s|"
+		action="processPopup(this)">
+	      </menuitem>
+	    </popupmenu>
+	  </tree>
+	  <tree
+	    weightx="1"
+	    weighty="1"
+	    angle="true"
+	    line="false"
+	    name="builtin_tree"
+	    action="actionNode(this,selectionmode)"
+	    perform="performNode(this)"
+	    >
+	    <node name="atomlist"
+	      expanded="false"
+	      text="Atom names">
+	    </node>
+	    <node name="residuelist"
+	      expanded="false"
+	      text="Residue names">
+	    </node>
+	    <node expanded="false"
+	      text="Elements">
+	      <node text="Carbon"
+		foreground="0x00ff00"
+		property="selection=element 6">
+	      </node>
+	      <node text="Nitrogen"
+		foreground="0x0000ff"
+		property="selection=element 7">
+	      </node>
+	      <node text="Oxygen"
+		foreground="0xff0000"
+		property="selection=element 8">
+	      </node>
+	      <node text="Phosphorus"
+		foreground="0xff00ff"
+		property="selection=element 15">
+	      </node>
+	      <node text="Sulphur"
+		foreground="0xffff33"
+		property="selection=element 16">
+	      </node>
+	      <node text="Hydrogen"
+		foreground="0x000000"
+		property="selection=element 1">
+	      </node>
+	    </node>
+	    <node expanded="false"
+	      text="Sphere">
+	      <node text="3.4 Angstrom"
+		property="selection=sphere 3.4 around current">
+	      </node>
+	      <node text="5   Angstrom"
+		property="selection=sphere 5 around current">
+	      </node>
+	      <node text="8   Angstrom"
+		property="selection=sphere 8 around current">
+	      </node>
+	      <node text="10  Angstrom"
+		property="selection=sphere 10 around current">
+	      </node>
+	      <node text="15 Angstrom"
+		property="selection=sphere 15 around current">
+	      </node>
+	    </node>
+	    <node expanded="false"
+	      text="H-bonding">
+	      <node text="Donors"
+		property="selection=solvent or (aminoacid and ((atom N and not name PRO) or (atom NE1 and name TRP) or (atom OG and name SER) or (atom OG1 and name THR) or (atom ND2 and name ASN) or (atom NE2 and name GLN) or (atom OH and name TYR) or (atom ND1 NE2 and name HIS) or (atom NZ and name LYS) or (atom NE NH1 NH2 and name ARG)))">
+	      </node>
+	      <node text="Acceptors"
+		property="selection=solvent or (aminoacid and (atom O or (atom OG and name SER) or (atom OG1 and name THR) or (atom OD1 and name ASN) or (atom OD2 and name GLN) or (atom OH and name TYR) or (atom ND1 NE2 and name HIS) or (atom OD1 OD2 and name ASP) or (atom OE1 OE2 and name GLU)))">
+	      </node>
+	    </node>
+	    <node text="Aminoacid"
+	      property="selection=aminoacid">
+	    </node>
+	    <node text="Solvent"
+	      property="selection=solvent">
+	    </node>
+	    <node text="DNA"
+	      property="selection=dna">
+	    </node>
+	    <node text="Ions"
+	      property="selection=ions">
+	    </node>
+	    <node text="Ligand"
+	      property="selection=not (aminoacid or solvent or dna or ions)">
+	    </node>
+	    <node text="Mainchain"
+	      property="selection=(aminoacid and atom CA C N O)">
+	    </node>
+	    <node text="C-alpha"
+	      property="selection=atom CA and not name CA">
+	    </node>
+	    <node text="Whole residue"
+	      property="selection=byresidue current">
+	    </node>
+	    <node text="Residue sidechain"
+	      property="selection=(byresidue current) and not atom O">
+	    </node>
+	    <node text="Whole molecule"
+	      property="selection=bymolecule current">
+	    </node>
+	    
+	  </tree>
+	</panel>
+	<panel columns="7"
+	  weightx="1">
+	  <label text="Lines">
+	  </label>
+	  <button icon="/astex/thinlet/tick.gif"
+	    width="20"
+	    height="20"
+	    property="command=display lines on default"
+	    action="execute(this)">
+	  </button>
+	  <button icon="/astex/thinlet/cross.gif"
+	    width="20"
+	    height="20"
+	    property="command=display lines off default"
+	    action="execute(this)">
+	  </button>
+	  <label text="Width">
+	  </label>
+	  <spinbox
+	    minimum="1"
+	    maximum="3"
+	    text="1"
+	    columns="4"
+	    property="command=bond_width $t default"
+	    action="execute(this)">
+	  </spinbox>
+	  <label text="Atoms">
+	  </label>
+	  <panel left="2"
+	    top="2"
+	    right="2"
+	    bottom="2">
+	    <button background="0x00ff00"
+	      width="16"
+	      height="16"
+	      property="command=color $c default"
+	      action="applyColorEdit(this)"/>
+	  </panel>
+	  <label text="Cylinders">
+	  </label>
+	  <button icon="/astex/thinlet/tick.gif"
+	    width="20"
+	    height="20"
+	    property="command=display cylinders on default"
+	    action="execute(this)">
+	  </button>
+	  <button icon="/astex/thinlet/cross.gif"
+	    width="20"
+	    height="20"
+	    property="command=display cylinders off default"
+	    action="execute(this)">
+	  </button>
+	  <label text="Radius">
+	  </label>
+	  <spinbox
+	    decimals="2"
+	    minimum="0.00"
+	    maximum="9.90"
+	    text="0.15"
+	    step="0.01"
+	    columns="4"
+	    property="command=cylinder_radius $t default"
+	    action="execute(this)">
+	  </spinbox>
+	  <label>
+	  </label>
+	  <label>
+	  </label>
+	  <label text="Sticks">
+	  </label>
+	  <button icon="/astex/thinlet/tick.gif"
+	    width="20"
+	    height="20"
+	    property="command=display sticks on default"
+	    action="execute(this)">
+	  </button>
+	  <button icon="/astex/thinlet/cross.gif"
+	    width="20"
+	    height="20"
+	    property="command=display sticks off default"
+	    action="execute(this)">
+	  </button>
+	  <label text="Balls">
+	  </label>
+	  <spinbox decimals="2"
+	    minimum="0.00"
+	    maximum="9.90"
+	    text="0.30"
+	    step="0.01"
+	    columns="4"
+	    property="command=ball_radius $t default"
+	    action="execute(this)">
+	  </spinbox>
+	  <label text="Sticks">
+	  </label>
+	  <spinbox decimals="2"
+	    minimum="0.00"
+	    maximum="9.90"
+	    text="0.10"
+	    step="0.01"
+	    columns="4"
+	    property="command=stick_radius $t default"
+	    action="execute(this)">
+	  </spinbox>
+	  <label text="Spheres">
+	  </label>
+	  <button icon="/astex/thinlet/tick.gif"
+	    width="20"
+	    height="20"
+	    property="command=display spheres on default"
+	    action="execute(this)">
+	  </button>
+	  <button icon="/astex/thinlet/cross.gif"
+	    width="20"
+	    height="20"
+	    property="command=display spheres off default"
+	    action="execute(this)">
+	  </button>
+	  <label text="Radius">
+	  </label>
+	  <spinbox decimals="2"
+	    minimum="0.00"
+	    maximum="9.90"
+	    text="1.50"
+	    step="0.05"
+	    columns="4"
+	    property="command=vdw $t default"
+	    action="execute(this)">
+	  </spinbox>
+	  <label text="Transp">
+	  </label>
+	  <spinbox minimum="0"
+	    maximum="255"
+	    text="255"
+	    step="5"
+	    columns="4"
+	    property="command=transparency $t default"
+	    action="execute(this)">
+	  </spinbox>
+	  <label>
+	  </label>
+	  <label>
+	  </label>
+	  <label>
+	  </label>
+	</panel>
+      </panel>
+    </tab>
+    <tab text="Create">
+      <panel columns="1" weightx="1">
+	<tabbedpane weightx="1"
+	  weighty="1">
+	  <tab text="Surface">
+	    <panel weightx="1"
+	      weighty="1">
+	      <label text="Name ">
+	      </label>
+	      <textfield name="surfacename"
+		text="surface1">
+	      </textfield>
+	      <label text="Probe">
+	      </label>
+	      <spinbox minimum="0.00"
+		maximum="9.90"
+		text="1.50"
+		step="0.05"
+		decimals="2"
+		columns="4"
+		name="surfaceprobe">
+	      </spinbox>
+	      <checkbox text="Solid"
+		selected="true"
+		name="surfacesolid"
+		alignment="right">
+	      </checkbox>
+	      <button text="Build"
+		action="execute(this)"
+		property="command=surface -probe ${surfaceprobe.t} -solid ${surfacesolid.b} ${surfacename.t} white current"/>
+	    </panel>
+	  </tab>
+	  <tab text="Analytical surface">
+	    <panel weightx="1">
+	      <label text="Name ">
+	      </label>
+	      <textfield name="anasurfacename"
+		text="anasurface1">
+	      </textfield>
+	      <label text="Probe">
+	      </label>
+	      <spinbox
+		minimum="0.00"
+		maximum="9.90"
+		text="1.50"
+		step="0.05"
+		decimals="2"
+		columns="4"
+		name="anasurfaceprobe">
+	      </spinbox>
+	      <label text="Quality">
+	      </label>
+	      <spinbox
+		minimum="1"
+		maximum="4"
+		text="1"
+		columns="1"
+		name="anasurfacequality">
+	      </spinbox>
+	      <button
+		name="buildAnasurface"
+		text="Build"
+		action="execute(this)"
+		property="command=anasurface -probe ${anasurfaceprobe.t} -quality ${anasurfacequality.t} ${anasurfacename.t} white current|object ${anasurfacename.t} color white">
+	      </button>
+	    </panel>
+	  </tab>
+	  <tab text="Schematic">
+	    <panel weightx="1"
+	      weighty="1"
+	      scrollable="true"
+	      columns="7">
+	      <label text="Name">
+	      </label>
+	      <textfield name="schematicname"
+		text="schematic1"
+		colspan="3">
+	      </textfield>
+	      <label text="Quality">
+	      </label>
+	      <spinbox minimum="1"
+		maximum="4"
+		text="1"
+		columns="1"
+		name="schematicquality"
+		action="execute(buildSchematic)">
+	      </spinbox>
+	      <button name="buildSchematic"
+		text="Build"
+		action="execute(this)"
+		property="command=secstruc current|schematic -name ${schematicname.t} -quality ${schematicquality.t} -ribbonwidth ${ribbonwidth.t} -ribbonthickness ${ribbonthick.t} -ribbonminwidth ${ribbontaper.t} -ribbonellipse ${ribbonellipse.b} -ribboncylinders ${ribboncylinders.b} -arrowwidth ${arrowwidth.t} -arrowheadwidth ${arrowtaper.t} -arrowthickness ${arrowthick.t} -arrowsmoothing ${arrowsmooth.t} -tuberadius ${coilwidth.t} -tubetaperradius ${coiltaper.t} -tubesmoothing ${coilsmooth.t} -colorbyss ${sscoloring.b} -ribboncolor ${ribboncolor.c} -arrowcolor ${arrowcolor.c} -tubecolor ${coilcolor.c} -alltube ${alltube.b} -tubetaper true default and aminoacid"/>
+		
+		<checkbox text="SS"
+		  name="sscoloring"
+		  selected="false"
+		  action="execute(buildSchematic)"
+		  tooltip="Color by Secondary Structure">
+		</checkbox>
+		<label text="Width">
+		</label>
+		<label text="Thick">
+		</label>
+		<label text="Taper">
+		</label>
+		<label text="Smooth">
+		</label>
+		<label>
+		</label>
+		<label>
+		</label>
+		
+		<panel left="2"
+		  top="2"
+		  right="2"
+		  bottom="2">
+		  <button text="Helix"
+		    weightx="1"
+		    background="0xff0000"
+		    name="ribboncolor"
+		    action="applyColorEdit(this,buildSchematic)">
+		  </button>
+		</panel>
+		<spinbox decimals="2"
+		  minimum="0.00"
+		  maximum="9.90"
+		  text="2.20"
+		  step="0.10"
+		  columns="4"
+		  name="ribbonwidth"
+		  action="execute(buildSchematic)">
+		</spinbox>
+		<spinbox decimals="2"
+		  minimum="0.00"
+		  maximum="9.90"
+		  text="0.15"
+		  step="0.02"
+		  columns="4"
+		  name="ribbonthick"
+		  action="execute(buildSchematic)">
+		</spinbox>
+		<spinbox decimals="2"
+		  minimum="0.00"
+		  maximum="9.90"
+		  text="0.40"
+		  step="0.05"
+		  columns="4"
+		  name="ribbontaper"
+		  action="execute(buildSchematic)">
+		</spinbox>
+		<label>
+		</label>
+		<checkbox text="Oval"
+		  selected="false"
+		  name="ribbonellipse"
+		  action="execute(buildSchematic)">
+		</checkbox>
+		<checkbox text="Edges"
+		  selected="false"
+		  name="ribboncylinders"
+		  colspan="1"
+		  action="execute(buildSchematic)">
+		</checkbox>
+		
+		<panel left="2"
+		  top="2"
+		  right="2"
+		  bottom="2">
+		  <button text="Arrows"
+		    background="0xffff00"
+		    name="arrowcolor"
+		    action="applyColorEdit(this,buildSchematic)"/>
+		</panel>
+		<spinbox decimals="2"
+		  minimum="0.00"
+		  maximum="9.90"
+		  text="2.20"
+		  step="0.10"
+		  columns="4"
+		  name="arrowwidth"
+		  action="execute(buildSchematic)">
+		</spinbox>
+		<spinbox decimals="2"
+		  minimum="0.00"
+		  maximum="9.90"
+		  text="0.50"
+		  step="0.02"
+		  columns="4"
+		  name="arrowthick"
+		  action="execute(buildSchematic)">
+		</spinbox>
+		<spinbox decimals="2"
+		  minimum="0.00"
+		  maximum="9.90"
+		  text="3.60"
+		  step="0.10"
+		  columns="4"
+		  name="arrowtaper"
+		  action="execute(buildSchematic)">
+		</spinbox>
+		<spinbox minimum="0"
+		  maximum="12"
+		  text="3"
+		  columns="1"
+		  name="arrowsmooth"
+		  action="execute(buildSchematic)">
+		</spinbox>
+		<label>
+		</label>
+		<label>
+		</label>
+		
+		<panel left="2"
+		  top="2"
+		  right="2"
+		  bottom="2">
+		  <button text="Coil"
+		    background="0xffffff"
+		    name="coilcolor"
+		    weightx="1"
+		    action="applyColorEdit(this,buildSchematic)"/>
+		</panel>
+		<spinbox decimals="2"
+		  minimum="0.00"
+		  maximum="9.90"
+		  text="0.20"
+		  step="0.02"
+		  columns="4"
+		  name="coilwidth"
+		  action="execute(buildSchematic)">
+		</spinbox>
+		<label>
+		</label>
+		<spinbox decimals="2"
+		  minimum="0.00"
+		  maximum="9.90"
+		  text="0.20"
+		  step="0.02"
+		  columns="4"
+		  name="coiltaper"
+		  action="execute(buildSchematic)">
+		</spinbox>
+		<spinbox minimum="0"
+		  maximum="12"
+		  text="1"
+		  columns="1"
+		  name="coilsmooth"
+		  action="execute(buildSchematic)">
+		</spinbox>
+		<checkbox text="Tube"
+		  selected="false"
+		  name="alltube"
+		  colspan="1"
+		  action="execute(buildSchematic)">
+		</checkbox>
+		<label>
+		</label>
+		
+	    </panel>
+	  </tab>
+	  <tab text="Labels">
+	    <panel weightx="1"
+	      columns="7">
+	      <label text="Format">
+	      </label>
+	      <combobox name="format"
+		text="%f%r"
+		action="execute(buildLabels)"
+		colspan="3">
+		<choice text="%f%r">
+		</choice>
+	      </combobox>
+	      <panel left="2"
+		top="2"
+		right="2"
+		bottom="2">
+		<button background="0xffffff"
+		  width="16"
+		  height="16"
+		  name="labelcolor"
+		  action="applyColorEdit(this,buildLabels)"/>
+	      </panel>
+	      <button
+		name="buildLabels"
+		text="Apply"
+		action="execute(this)"
+		property="command=label '<3d=${threed.b},points=${points.t},size=${size.t},radius=${radius.t},justify=${justify.n},color=${labelcolor.C},xoff=${xoffset.t},yoff=${yoffset.t},zoff=${zoffset.t}>${format.t}' current">
+	      </button>
+	      <button
+		text="Clear"
+		action="execute(this)"
+		property="command=label clear current">
+	      </button>
+
+	      <label text="Justify">
+	      </label>
+	      <combobox selected="0"
+		editable="false"
+		name="justify"
+		action="execute(buildLabels)">
+		<choice name="bl"
+		  icon="/astex/thinlet/bl.gif">
+		</choice>
+		<choice name="bh"
+		  icon="/astex/thinlet/bh.gif">
+		</choice>
+		<choice name="br"
+		  icon="/astex/thinlet/br.gif">
+		</choice>
+		<choice name="vl"
+		  icon="/astex/thinlet/vl.gif">
+		</choice>
+		<choice name="vh"
+		  icon="/astex/thinlet/vh.gif">
+		</choice>
+		<choice name="vr"
+		  icon="/astex/thinlet/vr.gif">
+		</choice>
+		<choice name="tl"
+		  icon="/astex/thinlet/tl.gif">
+		</choice>
+		<choice name="th"
+		  icon="/astex/thinlet/th.gif">
+		</choice>
+		<choice name="tr"
+		  icon="/astex/thinlet/tr.gif">
+		</choice>
+	      </combobox>
+	      <label text="XYZ">
+	      </label>
+	      <spinbox decimals="2"
+		minimum="-9999.0"
+		maximum="9999.0"
+		text="0.00"
+		step="0.05"
+		columns="4"
+		name="xoffset"
+		action="execute(buildLabels)">
+	      </spinbox>
+	      <spinbox decimals="2"
+		minimum="-9999.0"
+		maximum="9999.0"
+		text="0.00"
+		step="0.05"
+		columns="4"
+		name="yoffset"
+		action="execute(buildLabels)">
+	      </spinbox>
+	      <spinbox decimals="2"
+		minimum="-9999.0"
+		maximum="9999.0"
+		text="0.00"
+		step="0.05"
+		columns="4"
+		name="zoffset"
+		action="execute(buildLabels)">
+	      </spinbox>
+	      <label>
+	      </label>
+
+	      <label text="Size">
+	      </label>
+	      <spinbox text="12"
+		minimum="4"
+		maximum="36"
+		name="points"
+		columns="3"
+		action="execute(buildLabels)">
+	      </spinbox>
+	      <checkbox text="3d"
+		name="threed"
+		selected="false"
+		action="execute(buildLabels)">
+	      </checkbox>
+	      <spinbox decimals="2"
+		text="0.60"
+		step="0.05"
+		minimum="0.00"
+		maximum="999.0"
+		columns="4"
+		name="size"
+		action="execute(buildLabels)">
+	      </spinbox>
+	      <spinbox decimals="2"
+		text="0.05"
+		step="0.01"
+		minimum="0.00"
+		maximum="999.0"
+		columns="4"
+		name="radius"
+		action="execute(buildLabels)">
+	      </spinbox>
+	    </panel>
+	  </tab>
+	  <tab text="Distances">
+	    <panel weightx="1"
+	      columns="6">
+	      <label text="Name">
+	      </label>
+	      <textfield
+		name="distancename"
+		text="distance1"
+		columns="8"
+		>
+	      </textfield>
+	      
+	      <label text="Dmax">
+	      </label>
+	      <spinbox decimals="2"
+		minimum="-9999.0"
+		maximum="9999.0"
+		text="5.00"
+		step="0.05"
+		columns="4"
+		name="dmax"
+		action="execute(buildDistances)">
+	      </spinbox>
+	      
+	      <label text="Contact">
+	      </label>
+	      <spinbox decimals="2"
+		minimum="-9999.0"
+		maximum="9999.0"
+		text="0.50"
+		step="0.05"
+		columns="4"
+		name="contact"
+		action="execute(buildDistances)">
+	      </spinbox>
+	      
+	      <label text="Dash">
+	      </label>
+	      <spinbox decimals="2"
+		minimum="-9999.0"
+		maximum="9999.0"
+		text="0.20"
+		step="0.05"
+		columns="4"
+		name="dash"
+		action="execute(buildDistances)">
+	      </spinbox>
+	      <label text="Gap">
+	      </label>
+	      <spinbox decimals="2"
+		minimum="-9999.0"
+		maximum="9999.0"
+		text="0.20"
+		step="0.05"
+		columns="4"
+		name="gap"
+		action="execute(buildDistances)">
+	      </spinbox>
+	      <label text="Radius">
+	      </label>
+	      <spinbox decimals="2"
+		minimum="-9999.0"
+		maximum="9999.0"
+		text="0.02"
+		step="0.01"
+		columns="4"
+		name="distanceradius"
+		action="execute(buildDistances)">
+	      </spinbox>
+	      
+	      <label text="Mode">
+	      </label>
+	      <combobox selected="0"
+		columns="7"
+		editable="false"
+		name="mode"
+		action="execute(buildDistances)">
+		<choice text="pairs">
+		</choice>
+		<choice text="nbpairs">
+		</choice>
+		<choice text="bumps">
+		</choice>
+		<choice text="centroid">
+		</choice>
+	      </combobox>
+
+	      <label text="Label">
+	      </label>
+	      <combobox selected="0"
+		name="distanceformat"
+		text="%.2fA"
+		columns="5"
+		action="execute(buildDistances)">
+		<choice text="%.2fA">
+		</choice>
+		<choice text="%.1fA">
+		</choice>
+		<choice text="%.1f">
+		</choice>
+		<choice text="">
+		</choice>
+	      </combobox>
+	      <panel>
+		<label text="Color">
+		</label>
+		<panel left="2"
+		  top="2"
+		  right="2"
+		  bottom="2">
+		  <button background="0xffffff"
+		    width="16"
+		    height="16"
+		    name="distancecolor"
+		    action="applyColorEdit(this,buildDistances)"/>
+		</panel>
+	      </panel>
+	      <button text="Apply"
+		name="buildDistances"
+		action="execute(this)"
+		property="command=distance -delete '${distancename.t}'|distance -mode ${mode.t} -dmax ${dmax.t} -contact ${contact.t} -on ${dash.t} -off ${gap.t} -radius ${distanceradius.t} -name '${distancename.t}' -colour ${distancecolor.c} -from { peek 0 } -to { peek 1} -format '<3d=${threed.b},points=${points.t},size=${size.t},radius=${radius.t},justify=${justify.n},color=${labelcolor.C},xoff=${xoffset.t},yoff=${yoffset.t},zoff=${zoffset.t}>${distanceformat.t}'">
+	      </button>
+	    </panel>
+	  </tab>
+	</tabbedpane>
+	<tabbedpane>
+	  <tab text="Active Site">
+	    <panel weightx="1" weighty="1" columns="5">
+	      <label text="Box"></label>
+	      <button
+		text="Define"
+		action="execute(this)"
+		property="command=define pocket_box current">
+	      </button>
+	      <button
+		text="Show"
+		action="execute(this)"
+		property="command=select group pocket_box">
+	      </button>
+	      <label text="Border"></label>
+	      <spinbox
+		name="pocket_border"
+		text="5.0"
+		decimals="1"
+		step="0.5"
+		columns="4"
+		>
+	      </spinbox>
+	      <label text="Atoms"></label>
+	      <button
+		text="Define"
+		action="execute(this)"
+		property="command=define pocket_environment current">
+	      </button>
+	      <button
+		text="Show"
+		action="execute(this)"
+		property="command=select group pocket_environment">
+	      </button>
+	      <label text="Spacing"></label>
+	      <spinbox
+		name="pocket_spacing"
+		text="0.5"
+		decimals="1"
+		step="0.1"
+		columns="4"
+		>
+	      </spinbox>
+	      <label text="Name"></label>
+	      <textfield
+		name="pocket_name"
+		text="pockets"
+		colspan="2"
+		>
+	      </textfield>
+	      <label></label>
+	      <label></label>
+	      <panel visible="false">
+		<label text="Smoothing"></label>
+		<spinbox
+		  columns="4"
+		  text="10"
+		  minimum="0"
+		  maximum="100"
+		  name="pocket_iterations">
+		</spinbox>
+		<label text="Sigma"></label>
+		<spinbox
+		  columns="4"
+		  text="4.6"
+		  minimum="-10.0"
+		  maximum="10.0"
+		  decimals="1"
+		  step="0.1"
+		  name="pocket_sigma">
+		</spinbox>
+		<label text="Cutoff"></label>
+		<spinbox
+		  columns="4"
+		  text="-0.8"
+		  minimum="-10.0"
+		  maximum="10.0"
+		  decimals="1"
+		  step="0.1"
+		  name="pocket_cutoff">
+		</spinbox>
+	      </panel>
+
+	      <button
+		text="Lipophile"
+		foreground="0x00ff00"
+		action="execute(this)"
+		property="command=
+astex.design.Pocket
+		-algorithm pocketfinder
+		-selection { group pocket_environment }
+		-boxatoms  { group pocket_box }
+		-iterations ${pocket_iterations.t}
+		-spacing 1.0
+		-sigma ${pocket_sigma.t}
+		-probetype '21'
+		-parameters charmm19
+		-cutoff ${pocket_cutoff.t}
+		-name ${pocket_name.t}|
+object ${pocket_name.t}_0 transparency 128">
+	      </button>
+	      <button
+		text="Donors"
+		foreground="0x0000ff"
+		action="execute(this)"
+		property="command=
+active_site
+	-type donor
+	-superstar { group pocket_environment }
+	-exclusion { group pocket_environment }
+	-boxatoms  { group pocket_box }
+	-mapspacing ${pocket_spacing.t}
+	-border     ${pocket_border.t}
+	-prefix     ${pocket_name.t}
+	|
+display lines off molecule superstar_*"
+		>
+	      </button>
+	      <button
+		text="Acceptors"
+		foreground="0xff0000"
+		action="execute(this)"
+		property="command=
+active_site
+	-type acceptor
+	-superstar { group pocket_environment }
+	-exclusion { group pocket_environment }
+	-boxatoms  { group pocket_box }
+	-mapspacing ${pocket_spacing.t}
+	-border     ${pocket_border.t}
+	-prefix     ${pocket_name.t}
+	|
+display lines off molecule ${pocket_name.t}_*"
+		>
+	      </button>
+	      <button
+		text="PASS"
+		action="execute(this)"
+		property="command=
+vdw 1.20 element 1|
+vdw 1.70 element 6|
+vdw 1.55 element 7|
+vdw 1.52 element 8|
+vdw 1.80 element 16|
+
+astex.design.ActiveSite -pass { group pocket_environment }|
+
+color lightblue molecule PASS|
+
+display cylinders on molecule PASS">
+	      </button>
+	    </panel>
+	  </tab>
+	</tabbedpane>
+      </panel>
+    </tab>
+    <tab text="Maps"
+      name="map_tab">
+      <panel name="map_panel"
+	columns="1"
+	weightx="1"
+	init="initialiseMaps(this)"
+	>
+      </panel>
+    </tab>
+    <tab text="Objects"
+      name="object_tab">
+      <panel columns="1" weightx="1" weighty="1">
+	<panel name="object_list"
+	  columns="1"
+	  weightx="1"
+	  weighty="1"
+	  scrollable="true"
+	  init="initialiseObjects(this)">
+	</panel>
+	<panel name="lights_list"
+	  columns="4"
+	  weightx="1"
+	  weighty="0"
+	  border="true"
+	  text=" Lights "
+	  scrollable="true">
+	  <panel columns="2" weightx="1" weighty="1">
+	    <bean
+	      bean="astex.thinlet.LightCanvas"
+	      name="lightcanvas"
+	      weightx="0"
+	      weighty="0"
+	      width="120"
+	      height="120">
+	    </bean>
+	    <panel columns="4" weightx="1" weighty="1">
+	      <label text="Diffuse"></label>
+	      <label text="Hilite"></label>
+	      <label text="Shine"></label>
+	      <label text=""></label>
+	      <spinbox
+		name="l0d"
+		columns="3"
+		text="128"
+		minimum="0"
+		maximum="255"
+		step="5"
+		property="command=light 0 -diffuseint $t"
+		action="execute(this)">
+	      </spinbox>
+	      <spinbox
+		name="l0s"
+		columns="3"
+		text="128"
+		minimum="0"
+		maximum="255"
+		step="5"
+		property="command=light 0 -specularint $t"
+		action="execute(this)">
+	      </spinbox>
+	      <spinbox
+		name="l0p"
+		columns="3"
+		text="12"
+		minimum="0"
+		maximum="255"
+		step="4"
+		property="command=light 0 -phongpower $t"
+		action="execute(this)">
+	      </spinbox>
+	      <checkbox
+		name="l0"
+		text="0"
+		action="execute(this)"
+		selected="true"
+		property="command=light 0 -on $b">
+	      </checkbox>
+	      <spinbox
+		name="l1d"
+		columns="3"
+		text="128"
+		minimum="0"
+		maximum="255"
+		step="5"
+		property="command=light 1 -diffuseint $t"
+		action="execute(this)">
+	      </spinbox>
+	      <spinbox
+		name="l1s"
+		columns="3"
+		text="128"
+		minimum="0"
+		maximum="255"
+		step="5"
+		property="command=light 1 -specularint $t"
+		action="execute(this)">
+	      </spinbox>
+	      <spinbox
+		name="l1p"
+		columns="3"
+		text="12"
+		minimum="0"
+		maximum="255"
+		step="4"
+		property="command=light 1 -phongpower $t"
+		action="execute(this)">
+	      </spinbox>
+	      <checkbox
+		name="l1"
+		text="1"
+		action="execute(this)"
+		selected="true"
+		property="command=light 1 -on $b">
+	      </checkbox>
+	      <spinbox
+		name="l2d"
+		columns="3"
+		text="128"
+		minimum="0"
+		maximum="255"
+		step="5"
+		property="command=light 2 -diffuseint $t"
+		action="execute(this)">
+	      </spinbox>
+	      <spinbox
+		name="l2s"
+		columns="3"
+		text="128"
+		minimum="0"
+		maximum="255"
+		step="5"
+		property="command=light 2 -specularint $t"
+		action="execute(this)">
+	      </spinbox>
+	      <spinbox
+		name="l2p"
+		columns="3"
+		text="12"
+		minimum="0"
+		maximum="255"
+		step="4"
+		property="command=light 2 -phongpower $t"
+		action="execute(this)">
+	      </spinbox>
+	      <checkbox
+		name="l2"
+		text="2"
+		action="execute(this)"
+		selected="true"
+		property="command=light 2 -on $b">
+	      </checkbox>
+	      <spinbox
+		name="l3d"
+		columns="3"
+		text="128"
+		minimum="0"
+		maximum="255"
+		step="5"
+		property="command=light 3 -diffuseint $t"
+		action="execute(this)">
+	      </spinbox>
+	      <spinbox
+		name="l3s"
+		columns="3"
+		text="128"
+		minimum="0"
+		maximum="255"
+		step="5"
+		property="command=light 3 -specularint $t"
+		action="execute(this)">
+	      </spinbox>
+	      <spinbox
+		name="l3p"
+		columns="3"
+		text="12"
+		minimum="0"
+		maximum="255"
+		step="4"
+		property="command=light 3 -phongpower $t"
+		action="execute(this)">
+	      </spinbox>
+	      <checkbox
+		name="l3"
+		text="3"
+		action="execute(this)"
+		selected="true"
+		property="command=light 3 -on $b">
+	      </checkbox>
+	    </panel>
+	  </panel>
+	</panel>
+      </panel>
+    </tab>
+    <tab
+      text="Distances"
+      name="distance_tab"
+      >
+      <panel weightx="1"
+	weighty="1">
+	<list
+	  name="distance_list"
+	  init="initialiseDistances(this)"
+	  weightx="1"
+	  weighty="1"
+	  action="editGeneric(this)">
+	</list>
+      </panel>
+    </tab>
+    <tab text="Scripting">
+      <panel weightx="1"
+	weighty="1"
+	columns="1">
+	<textarea name="command"
+	  weightx="1"
+	  weighty="1"
+	  text="type a command here"
+	  start="0"
+	  end="100">
+	</textarea>
+	<panel weightx="1"
+	  weighty="1">
+	  <button text="Run"
+	    action="execute(command)">
+	  </button>
+	  <button text="Clear"
+	    action="clear(command)">
+	  </button>
+	  <spinbox
+	    minimum="90"
+	    maximum="180"
+	    text="90"
+	    columns="4"
+	    action="execute(this)"
+	    property="command=view -wrapangle $t">
+	  </spinbox>
+	  <spinbox
+	    minimum="0.00"
+	    maximum="1.00"
+	    text="1.00"
+	    step="0.02"
+	    columns="4"
+	    decimals="2"
+	    action="execute(this)"
+	    property="command=view -powfactor $t">
+	  </spinbox>
+	  <spinbox
+	    minimum="1.00"
+	    maximum="5.00"
+	    text="2.35"
+	    step="0.05"
+	    columns="4"
+	    decimals="2"
+	    action="execute(this)"
+	    property="command=view -aagamma $t">
+	  </spinbox>
+	</panel>
+      </panel>
+    </tab>
+    <tab text="Test" enabled="true">
+      <panel weightx="1" weighty="1" columns="1">
+	<panel weightx="1" columns="1">
+	  <panel weightx="1">
+	    <label text="Stuffa" weightx="1" background="0x4444aa"></label>
+	    <label icon="/astex/thinlet/minus.gif" action="collapse(this)"></label>
+	  </panel>
+	  <panel weightx="1" weighty="1" border="true">
+	    <textarea text="Hello world"></textarea>
+	  </panel>
+	</panel>
+	<panel weightx="1" columns="1">
+	  <panel weightx="1">
+	    <label text="Stuff2" weightx="1" background="0x4444aa"></label>
+	    <label icon="/astex/thinlet/minus.gif" action="collapse(this)"></label>
+	  </panel>
+	  <panel weightx="1" weighty="1" border="true">
+	    <textarea text="Hello world"></textarea>
+	  </panel>
+	</panel>
+	<panel weightx="1" columns="1">
+	  <panel weightx="1">
+	    <label text="Stuff3" weightx="1" background="0x4444aa"></label>
+	    <label icon="/astex/thinlet/minus.gif" action="collapse(this)"></label>
+	  </panel>
+	  <panel weightx="1" weighty="1" border="true">
+	    <textarea text="Hello world"></textarea>
+	  </panel>
+	</panel>
+      </panel>
+    </tab>
+  </tabbedpane>
+  <panel weightx="1"
+    weighty="1"
+    columns="1">
+    <panel
+      text=" Edit... "
+      border="true"
+      name="property_panel"
+      scrollable="true"
+      columns="4"
+      weightx="1"
+      weighty="1">
+    </panel>
+    <panel
+      weightx="1"
+      columns="6">
+      <button text="Center"
+	action="execute(this)"
+	property="command=center current">
+      </button>
+      <checkbox text="Antialias"
+	selected="false"
+	action="execute(this)"
+	property="command=view -antialias $b">
+      </checkbox>
+      <label text="Clip"
+	alignment="right">
+      </label>
+      <spinbox name="frontclip"
+	text="6.0"
+	minimum="0.0"
+	maximum="999999.0"
+	decimals="1"
+	step="0.5"
+	columns="4"
+	action="execute(this)"
+	init="initialiseFrontClip(this)"
+	property="command=clip ${frontclip.t} ${backclip.t}">
+      </spinbox>
+      <spinbox name="backclip"
+	text="-6.0"
+	minimum="-999999.0"
+	maximum="0.0"
+	decimals="1"
+	step="0.5"
+	columns="4"
+	action="execute(this)"
+	init="initialiseBackClip(this)"
+	property="command=clip ${frontclip.t} ${backclip.t}">
+      </spinbox>
+      <checkbox
+	name="symmetry"
+	text="Symmetry"
+	selected="true"
+	property="command=set symmetry $o"
+	action="execute(this)">
+      </checkbox>
+      <button text="Reset"
+	action="resetView(this)">
+      </button>
+      <checkbox text="Shadows"
+	selected="false"
+	action="execute(this)"
+	property="command=view -realspheres $b| view -shadows $b">
+      </checkbox>
+      <label text="Background"
+	colspan="2"/>
+	<panel left="2"
+	  top="2"
+	  right="2"
+	  bottom="2">
+	  <button background="0x000000"
+	    width="16"
+	    height="16"
+	    property="command=background $c"
+	    action="applyColorEdit(this)"/>
+	</panel>
+	<checkbox text="Spin"
+	  selected="false"
+	  action="execute(this)"
+	  property="command=astex.Spin -active $b">
+	</checkbox>
+    </panel>
+    <panel visible="false">
+      <spinbox name="rate"
+	text="0.2"
+	minimum="-90.0"
+	maximum="90.0"
+	decimals="2"
+	step="0.1"
+	columns="3"
+	action="execute(this)"
+	property="command=astex.Spin -angle $t">
+      </spinbox>
+    </panel>
+  </panel>
+  <panel visible="false"
+    init="initialiseResidues(residuelist,atomlist)">
+  </panel>
+  <panel visible="false"
+    init="initLightCanvas(lightcanvas,lights_list)">
+  </panel>
+</splitpane>

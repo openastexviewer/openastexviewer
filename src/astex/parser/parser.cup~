@@ -1,0 +1,1783 @@
+package astex.parser;
+
+import java_cup.runtime.*;
+import java.util.*;
+import java.io.*;
+import java.net.*;
+
+import astex.*;
+import astex.anasurface.*;
+
+parser code {:
+	public static String urlContents = null;
+
+	StringBuffer urlContentsBuffer = new StringBuffer(4096);
+
+	public static String getUrlContents(){
+		return urlContents;
+	}
+
+	public static MoleculeRenderer renderer = null;
+
+	public static void setMoleculeRenderer(MoleculeRenderer r){
+		renderer = r;
+	}
+
+	public static Hashtable definitions = new Hashtable();
+:}
+
+terminal COLON, SEMI, LPAREN, RPAREN, DASH, COMMA, DOLLAR, LCURLY, RCURLY;
+terminal AND, OR, NOT;
+terminal ALL;
+terminal NONE;
+terminal CURRENT;
+terminal DEFAULT;
+terminal LABELLED;
+terminal DISPLAYED;
+terminal ID;
+terminal ATOM;
+terminal CONTACT;
+terminal BONDED;
+terminal SPHERE;
+terminal SPHERES;
+terminal LINES;
+terminal CYLINDERS;
+terminal STICKS;
+terminal STICK_RADIUS;
+terminal STICK_COLOR;
+terminal BALL_RADIUS;
+terminal CYLINDER_RADIUS;
+terminal BOND_WIDTH;
+terminal LINEWIDTH;
+terminal RESIDUE;
+terminal GROUP;
+terminal MODULO;
+terminal INSERTION;
+terminal SEQUENTIAL;
+terminal COMPOSITE;
+terminal NAME;
+terminal BYRESIDUE;
+terminal GRAPH;
+terminal MOLECULE;
+terminal MOLEXACT;
+terminal MAP;
+terminal CHAIN;
+terminal AROUND;
+
+terminal SOLVENT;
+terminal AMINOACID;
+terminal DNA;
+terminal IONS;
+
+terminal EVALUATE;
+terminal FETCH;
+terminal LABEL;
+terminal OBJECT;
+terminal REMOVE;
+terminal DISPLAY;
+terminal SURFACE;
+terminal CONTEXT;
+terminal PROPERTY;
+terminal DOTSURFACE;
+terminal ANASURFACE;
+terminal LOAD;
+terminal LAZY;
+terminal WIDE;
+terminal SOLID;
+terminal COLOR;
+terminal COLOR_BY_ATOM;
+terminal COLOR_BY_CHAIN;
+terminal COLOR_BY_BVALUE;
+terminal COLOR_BY_ENERGY;
+terminal COLOR_BY_RAINBOW;
+terminal COLOR_BY_BVALUE_RANGE;
+terminal ON;
+terminal OFF;
+terminal TOGGLE;
+terminal CLIP;
+terminal RADIUS;
+terminal VDW;
+terminal CHARGE;
+terminal ELEMENT;
+terminal INCREASE;
+terminal DECREASE;
+terminal CENTER;
+terminal DISTANCE;
+terminal ANGLE;
+terminal TORSION;
+terminal TO;
+terminal CLEAR;
+terminal SET;
+terminal ZAP;
+terminal MATRIX;
+terminal CONTOUR;
+terminal SELECT;
+terminal INVERT;
+terminal APPEND;
+terminal EXCLUDE;
+terminal PUSH;
+terminal POP;
+terminal PEEK;
+terminal INSTALL;
+terminal DEFINE;
+terminal TEXTURE;
+terminal LIGHT;
+terminal TRANSPARENCY;
+terminal SIMPLE;
+terminal RECTANGULAR;
+terminal CURVATURE;
+terminal ELECTROSTATIC;
+terminal LIPOPHILICITY;
+terminal BACKFACE;
+terminal COPYTO;
+terminal BACKGROUND;
+terminal UNDEFINE;
+terminal REPAINT;
+terminal ANIMATE;
+terminal ACTIVE_SITE;
+terminal MODELLING;
+terminal FORCEFIELD;
+terminal SKELETON;
+terminal PRINT;
+terminal ACTIVE;
+terminal ENVIRONMENT;
+terminal XRAY;
+terminal FIXED;
+terminal HBOND;
+terminal SLIDE;
+terminal UPDATE;
+terminal RANGE;
+terminal DELETE;
+terminal EDIT;
+
+terminal RUN;
+terminal WRITE;
+terminal VIEW;
+
+terminal SECSTRUC;
+terminal SCHEMATIC;
+
+terminal ARG;
+terminal TRUE;
+terminal FALSE;
+
+terminal Integer OPERATOR;
+terminal Integer ATTRIBUTE;
+
+terminal Integer INTEGER;
+terminal Double DOUBLE;
+terminal String STRING;
+
+non terminal byte[] statement;
+non terminal Vector id_list;
+non terminal FloatArray number_list;
+non terminal int[] id;
+non terminal Vector string_list;
+
+non terminal Object[] arg;
+non terminal Arguments arg_list;
+non terminal Arguments arguments;
+
+non terminal byte[] selection_expression;
+non terminal DynamicArray selection;
+non terminal Integer render_style;
+non terminal String on_off;
+
+non terminal script, command;
+non terminal definition;
+non terminal molecule_command;
+non terminal map_command;
+non terminal display_command;
+non terminal center_command;
+non terminal distance_command;
+non terminal color_command;
+non terminal label_command;
+non terminal selection_command;
+non terminal object_command;
+non terminal surface_command;
+non terminal miscellaneous_command;
+non terminal load_command;
+non terminal remove_command;
+non terminal texture_command;
+non terminal schematic_command;
+non terminal animation_command;
+non terminal modelling_command;
+non terminal light_command;
+non terminal write_command;
+non terminal view_command;
+non terminal skeleton_command;
+non terminal hbond_command;
+non terminal active_site_command;
+
+non terminal Double number;
+
+precedence left AND;
+precedence left OR;
+precedence left TO;
+
+script ::=
+	  script command
+	| command
+	;
+
+command ::=
+	  definition SEMI	{: parser.renderer.dirty = true; :}
+	;
+
+definition ::=
+	  molecule_command
+	| map_command
+	| display_command
+	| center_command
+	| distance_command
+	| color_command
+	| label_command
+	| selection_command
+	| object_command
+	| miscellaneous_command
+	| load_command
+	| remove_command
+	| texture_command
+	| surface_command
+	| schematic_command
+	| animation_command
+	| modelling_command
+	| light_command
+	| write_command
+	| view_command
+	| skeleton_command
+	| hbond_command
+	| active_site_command
+	;
+
+selection_command ::=
+	| SELECT selection:selectedAtoms
+		{:
+			AtomIterator iterator =
+				parser.renderer.getAtomIterator();
+	    
+			// clear the selection state of all atoms
+			while(iterator.hasMoreElements()){
+				Atom atom = iterator.getNextAtom();
+				atom.setSelected(false);
+			}
+		
+			parser.renderer.setSelected(selectedAtoms);
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| APPEND selection:selectedAtoms
+		{:
+			int selectionCount = selectedAtoms.size();
+
+			for(int i = 0; i < selectionCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				a.setSelected(true);
+	    		}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| EXCLUDE selection:selectedAtoms
+		{:
+			int selectionCount = selectedAtoms.size();
+
+			for(int i = 0; i < selectionCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				a.setSelected(false);
+	    		}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| INVERT selection:selectedAtoms
+		{:
+			int selectionCount = selectedAtoms.size();
+
+			for(int i = 0; i < selectionCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				if(a.isSelected()){
+					a.setSelected(false);
+				}else{
+					a.setSelected(true);
+				}
+	    		}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| DEFINE STRING:name selection:selectedAtoms
+		{:
+			System.out.println("storing definition " + name +
+				" atom count " + selectedAtoms.size());
+
+			Hashtable h = new Hashtable();
+
+			int count = selectedAtoms.size();
+
+			for(int i = 0; i < count; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				h.put(a, a);
+			}
+
+			parser.renderer.groups.put(name, h); 
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:} 
+	| UNDEFINE STRING:name
+		{:
+			parser.renderer.groups.remove(name);
+		:}
+	| PUSH
+		{:
+			AtomIterator iterator =
+				parser.renderer.getAtomIterator();
+			DynamicArray selectedAtoms = new DynamicArray();
+	    
+			// clear the selection state of all atoms
+			while(iterator.hasMoreElements()){
+				Atom atom = iterator.getNextAtom();
+				if(atom.isSelected()){
+					selectedAtoms.add(atom);
+					atom.setSelected(false);
+				}
+			}
+		
+			parser.renderer.pushSelection(selectedAtoms);
+
+		:}
+	| EVALUATE selection:selectedAtoms
+		{:
+			Selection.store(selectedAtoms);
+		:}
+	;
+
+molecule_command ::=
+	  WRITE arguments:args
+		{:
+			parser.renderer.handleWriteCommand(args);
+		:}
+	;
+
+molecule_command ::=
+	  MOLECULE LAZY STRING:name STRING:file
+		{:
+			Molecule mol = parser.renderer.getMolecule(name);
+
+			if(mol == null){
+				parser.renderer.addMolecule(file, name);
+			}
+		:}
+	| MOLECULE LOAD STRING:name STRING:file
+		{:
+			parser.renderer.addMolecule(file, name);
+		:}
+	| MOLECULE LOAD STRING:file
+		{:
+			parser.renderer.addMolecule(file, file);
+		:}
+	| MOLECULE DISPLAY STRING:pattern on_off:action
+		{:
+			parser.renderer.setMoleculeVisibility(pattern, action);
+		:}
+	| MOLECULE STRING:pattern STRING:name on_off:value
+		{:
+			parser.renderer.setMoleculeVariable(pattern, name, value);
+		:}
+	| MOLECULE DISPLAY STRING:pattern STRING:action
+		{:
+			parser.renderer.setMoleculeVisibility(pattern, action);
+		:}
+	| MOLECULE REMOVE STRING:pattern
+		{:
+			parser.renderer.removeMolecule(pattern);
+		:}
+	;
+
+remove_command ::=
+	  REMOVE MOLECULE STRING:pattern
+		{:
+			parser.renderer.removeMolecule(pattern);
+		:}
+	| REMOVE OBJECT STRING:pattern
+		{:
+			parser.renderer.removeGraphicalObjects(pattern);
+		:}
+	;
+
+map_command ::=
+	  MAP LOAD STRING:name STRING:file
+		{:
+			astex.Map map = astex.Map.create();
+			map.setFile(file);
+			map.setName(name);
+			parser.renderer.addMap(map);
+		:}
+	| MAP REMOVE STRING:name
+		{:
+			parser.renderer.removeMap(name);
+		:}
+	| MAP STRING:name CONTOUR INTEGER:contour number:value
+		{:
+			parser.renderer.setMapContourLevel(name,
+					contour.intValue(),
+					value.doubleValue());
+		:}
+	| MAP STRING:name CONTOUR INTEGER:contour STRING:onoff
+		{:
+			DynamicArray maps = parser.renderer.getMaps(name);
+
+			for(int i = 0; i < maps.size(); i++){
+				astex.Map map = (astex.Map)maps.get(i);
+				if(onoff.equals("wire")){
+					map.setContourStyle(contour.intValue(), astex.Map.Lines);
+					parser.renderer.contourMap(map, contour.intValue());
+				}else if(onoff.equals("solid")){
+					map.setContourStyle(contour.intValue(), astex.Map.Surface);
+					parser.renderer.contourMap(map, contour.intValue());
+				}else{
+					int colour =
+						Color32.getColorFromName(onoff);
+					//System.out.println("color change to " + colour);
+					parser.renderer.setMapContourColour(name,
+							contour.intValue(),
+							colour);
+				}
+			}
+		:}
+	| MAP STRING:name CONTOUR INTEGER:contour COLOR STRING:c
+		{:
+				int colour = Color32.getColorFromName(c);
+
+				//System.out.println("color change to " + colour);
+				parser.renderer.setMapContourColour(name,
+						contour.intValue(),
+						colour);
+		:}
+	| MAP STRING:name CONTOUR INTEGER:contour SOLID on_off:value
+		{:
+			DynamicArray maps = parser.renderer.getMaps(name);
+
+			for(int i = 0; i < maps.size(); i++){
+				astex.Map map = (astex.Map)maps.get(i);
+				if(value.equals("on")){
+					map.setContourStyle(contour.intValue(), astex.Map.Surface);
+				}else{
+					map.setContourStyle(contour.intValue(), astex.Map.Lines);
+				}
+				parser.renderer.contourMap(map, contour.intValue());
+			}
+		:}
+	| MAP STRING:name CONTOUR INTEGER:contour LINEWIDTH number:w
+		{:
+			parser.renderer.setMapContourLineWidth(name,
+								contour.intValue(),
+								w.doubleValue());
+
+		:}
+	| MAP STRING:name CONTOUR INTEGER:contour TRANSPARENCY INTEGER:t
+		{:
+			parser.renderer.setMapContourTransparency(name,
+								contour.intValue(),
+								t.intValue());
+
+		:}
+	| MAP STRING:name CLIP selection:selectedAtoms
+		{:
+			parser.renderer.clipMaps(name, selectedAtoms, true);
+		:}
+	| MAP STRING:name CONTOUR INTEGER:contour on_off:onoff
+		{:
+			int displayed = -1;
+			
+			astex.Map map = parser.renderer.getMap(name);
+
+			if(onoff.equals("toggle")){
+			  displayed = 2;
+			}else if(onoff.equals("on")){
+			  displayed = 1;
+			}else if(onoff.equals("off")){
+			  displayed = 0;
+			}
+
+			parser.renderer.setMapContourDisplayed(name,
+				contour.intValue(),
+				displayed);
+
+			//map.setNeedsReading(true);
+		:}
+	| MAP STRING:name arguments:args
+		{:
+			//System.out.println("args " + args);
+			parser.renderer.handleMapCommand(name, args);
+		:}
+	;
+
+display_command ::=
+	  DISPLAY selection:selectedAtoms
+		{:
+			AtomIterator iterator =
+				parser.renderer.getAtomIterator();
+	    
+			while(iterator.hasMoreElements()){
+				Atom atom = iterator.getNextAtom();
+				atom.setTemporarilySelected(false);
+		    	}
+
+			int selectedAtomCount = selectedAtoms.size();
+	    		for(int i = 0; i < selectedAtomCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				a.setTemporarilySelected(true);
+	    		}
+
+	   	 	iterator = parser.renderer.getAtomIterator();
+	    
+	  	  	while(iterator.hasMoreElements()){
+				Atom atom = iterator.getNextAtom();
+				if(atom.isTemporarilySelected()){
+		    			atom.setDisplayed(true);
+				}else{
+		   			atom.setDisplayed(false);
+				}
+	    		}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| DISPLAY render_style:mode selection:selectedAtoms
+		{:
+			int displayBit = mode.intValue();;
+
+			if(displayBit != 0){
+		   	 	AtomIterator iterator =
+					parser.renderer.getAtomIterator();
+		    
+	  		  	while(iterator.hasMoreElements()){
+					Atom atom = iterator.getNextAtom();
+					atom.attributes &= ~displayBit;
+				}
+				
+				int atomCount = selectedAtoms.size();
+	
+				for(int a = 0; a < atomCount; a++){
+					Atom atom = (Atom)selectedAtoms.get(a);
+					atom.attributes |= displayBit;
+				}
+			}else{
+				System.out.println("invalid display mode " + mode);
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| DISPLAY render_style:mode on_off:onoff selection:selectedAtoms
+		{:
+			int displayBit = mode.intValue();;
+			int on = 0;
+
+			if(onoff.equals("on")){
+				on = 1;
+			}else if(onoff.equals("off")){
+				on = 0;
+				displayBit = ~displayBit;
+			}else{
+				System.out.println("illegal state in display command " + onoff);
+			}
+			
+			if(displayBit != 0){
+				int atomCount = selectedAtoms.size();
+	
+				for(int a = 0; a < atomCount; a++){
+					Atom atom = (Atom)selectedAtoms.get(a);
+					if(on == 1){
+						atom.attributes |= displayBit;
+					}else{
+						atom.attributes &= displayBit;
+					}
+				}
+			}else{
+				System.out.println("invalid display mode " + mode);
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+        | DISPLAY WIDE selection:selectedAtoms
+                {:
+			int moleculeCount = parser.renderer.getMoleculeCount();
+
+			for(int m = 0; m < moleculeCount; m++){
+	    			Molecule molecule = parser.renderer.getMolecule(m);
+				int bondCount = molecule.getBondCount();
+
+				for(int b = 0; b < bondCount; b++){
+					Bond bond = molecule.getBond(b);
+					bond.setBondWidth(1);
+	    			}
+			}
+
+                        int atomCount = selectedAtoms.size();
+
+                        for(int a = 0; a < atomCount; a++){
+                                Atom atom = (Atom)selectedAtoms.get(a);
+                                int bondCount = atom.getBondCount();
+                                for(int b = 0; b < bondCount; b++){
+                                        Bond bond = atom.getBond(b);
+                                        bond.setBondWidth(2);
+                                }
+                        }
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+                :}
+	| CLIP number:c
+		{: parser.renderer.renderer.setClip(c.doubleValue()); :}
+	| CLIP number:c number:d
+		{: parser.renderer.renderer.setClip(c.doubleValue(), d.doubleValue()); :}
+	| CLIP INCREASE number:c
+		{: parser.renderer.renderer.setClip(parser.renderer.renderer.getClip() + c.doubleValue()); :}
+	| CLIP DECREASE number:c
+		{: parser.renderer.renderer.setClip(parser.renderer.renderer.getClip() - c.doubleValue()); :}
+	| DOTSURFACE STRING:name INTEGER:n selection:selectedAtoms
+		{:
+			parser.renderer.removeGraphicalObjects(name);
+
+			Tmesh dotSurface =
+				Surface.dotSurface(selectedAtoms, n.intValue());
+
+			dotSurface.setName(name);
+
+			parser.renderer.addGraphicalObject(dotSurface);
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| VDW number:r selection:selectedAtoms
+		{:
+			double newr = r.doubleValue();
+
+			int selectedAtomCount = selectedAtoms.size();
+	    		for(int i = 0; i < selectedAtomCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				a.setVDWRadius(newr);
+	    		}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| BALL_RADIUS number:r selection:selectedAtoms
+		{:
+			double newr = r.doubleValue();
+
+			int selectedAtomCount = selectedAtoms.size();
+	    		for(int i = 0; i < selectedAtomCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				a.setBallRadius(newr);
+	    		}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| STICK_RADIUS number:r selection:selectedAtoms
+		{:
+			double newr = r.doubleValue();
+
+			DynamicArray selectedBonds =
+				parser.renderer.getBondsInSelection(selectedAtoms);
+			for(int i = 0; i < selectedBonds.size(); i++){
+				Bond b = (Bond)selectedBonds.get(i);
+				b.setStickWidth(newr);
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| CYLINDER_RADIUS number:r selection:selectedAtoms
+		{:
+			double newr = r.doubleValue();
+
+			DynamicArray selectedBonds =
+				parser.renderer.getBondsInSelection(selectedAtoms);
+			for(int i = 0; i < selectedBonds.size(); i++){
+				Bond b = (Bond)selectedBonds.get(i);
+				b.setCylinderWidth(newr);
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| BOND_WIDTH INTEGER:iw selection:selectedAtoms
+		{:
+			int neww = iw.intValue();
+
+			DynamicArray selectedBonds =
+				parser.renderer.getBondsInSelection(selectedAtoms);
+			for(int i = 0; i < selectedBonds.size(); i++){
+				Bond b = (Bond)selectedBonds.get(i);
+				b.setBondWidth(neww);
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| STICK_COLOR STRING:colour selection:selectedAtoms
+		{:
+			int c = Color32.getColorFromName(colour);
+			DynamicArray selectedBonds =
+				parser.renderer.getBondsInSelection(selectedAtoms);
+
+			for(int i = 0; i < selectedBonds.size(); i++){
+				Bond b = (Bond)selectedBonds.get(i);
+				b.setBondColor(c);
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| CHARGE number:r selection:selectedAtoms
+		{:
+			double newr = r.doubleValue();
+
+			int selectedAtomCount = selectedAtoms.size();
+	    		for(int i = 0; i < selectedAtomCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				a.setPartialCharge(newr);
+	    		}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| ATTRIBUTE:att number:r selection:selectedAtoms
+		{:
+			double newr = r.doubleValue();
+			int value = att.intValue();
+			int selectedAtomCount = selectedAtoms.size();
+			boolean printedError = false;
+
+	    		for(int i = 0; i < selectedAtomCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				if(value == Atom.B){
+					a.setBFactor(newr);
+				}else if(value == Atom.O){
+					a.setOccupancy(newr);
+				}else if(value == Atom.X){
+					a.setX(newr);
+				}else if(value == Atom.Y){
+					a.setY(newr);
+				}else if(value == Atom.Z){
+					a.setZ(newr);
+				}else{
+					if(!printedError){
+						System.out.println("error unknown attribute " + value);
+						printedError = true;
+					}
+				}
+
+	    		}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| SURFACE arguments:args STRING:name STRING:colour selection:selectedAtoms
+		{:
+			if(args.getBoolean("-lazy", false) == false ||
+                           parser.renderer.renderer.getGraphicalObject(name) == null){
+				parser.renderer.removeGraphicalObjects(name);
+				Surface.setProbeRadius(args.getDouble("probe", 1.5));
+
+				MoleculeRenderer r = parser.renderer;
+				Tmesh surface =
+					Surface.connolly(selectedAtoms, 0.3,
+						args.getBoolean("solid", false));
+				surface.setName(name);
+				int c = Color32.getColorFromName(colour);
+				surface.setColor(c);
+				r.addGraphicalObject(surface);
+			}
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	;
+
+surface_command ::=
+	  ANASURFACE arguments:args STRING:name STRING:colour selection:selectedAtoms
+		{:
+			int selectionCount = selectedAtoms.size();
+			double xxx[][] = new double[selectionCount][3];
+			double r[] = new double[selectionCount];
+			int visible[] = new int[selectionCount];
+			int colors[] = new int[selectionCount];
+			int color = Color32.getColorFromName(colour);
+			
+			double probeRadius = args.getDouble("-probe", 1.5);
+
+			AnaSurface.defaultProbeRadius = probeRadius;
+
+			int quality = args.getInteger("-quality", 2);
+
+			AnaSurface.defaultQuality = quality;
+
+
+			for(int i = 0; i < selectionCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				xxx[i][0] = a.x;
+				xxx[i][1] = a.y;
+				xxx[i][2] = a.z;
+				r[i] = a.getVDWRadius();
+				visible[i] = 1;
+				colors[i] = a.getColor();
+			}
+
+			AnaSurface s =
+				new AnaSurface(xxx, r, visible, colors, selectionCount);
+
+			// set the background color for the object
+			s.backgroundColor = color;
+
+
+			// construct the surface.
+			Tmesh tm = s.construct();
+
+			tm.setName(name);
+
+			parser.renderer.addGraphicalObject(tm);
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	;
+
+color_command ::=
+	  COLOR_BY_ATOM
+		{:
+			parser.renderer.colorByAtom();
+		:}
+	| COLOR_BY_CHAIN
+		{:
+			parser.renderer.colorByChain();
+		:}
+	| COLOR_BY_BVALUE
+		{:
+			parser.renderer.colorByBFactor();
+		:}
+	| COLOR_BY_ENERGY
+		{:
+			parser.renderer.colorByPropertyRange(Atom.E);
+		:}
+	| COLOR_BY_BVALUE_RANGE
+		{:
+			parser.renderer.colorByPropertyRange(Atom.B);
+		:}
+	| COLOR_BY_RAINBOW selection:selectedAtoms
+		{:
+			parser.renderer.colorByRainbow(selectedAtoms);
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| COLOR STRING:c selection:selectedAtoms
+		{:
+			int color =
+				Color32.getColorFromName(c);
+
+			int selectionCount = selectedAtoms.size();
+
+			for(int i = 0; i < selectionCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				a.setColor(color);
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| TRANSPARENCY INTEGER:n selection:selectedAtoms
+		{:
+			int selectionCount = selectedAtoms.size();
+
+			for(int i = 0; i < selectionCount; i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				a.setTransparency(n.intValue());
+			}
+		:}
+	;
+
+label_command ::=
+	  LABEL CLEAR selection:selectedAtoms
+		{:
+			for(int i = 0; i < selectedAtoms.size(); i++){
+				Atom a = (Atom)selectedAtoms.get(i);
+				a.setCustomLabel(null);
+			}
+		:}
+	| LABEL STRING:format selection:selectedAtoms
+		{:
+			parser.renderer.generateAtomLabels(format,
+							   selectedAtoms);
+			//for(int i = 0; i < selectedAtoms.size(); i++){
+			//	Atom a = (Atom)selectedAtoms.get(i);
+			//	a.setLabelled(true);
+			//}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	;
+
+center_command ::=
+	  CENTER selection:selectedAtoms
+		{:
+			parser.renderer.setCenter(selectedAtoms); 
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| RADIUS number:x
+		{: parser.renderer.setRadius(x.doubleValue()); :}
+	| CENTER number:x number:y number:z
+		{: parser.renderer.setCenter(x.doubleValue(),
+					     y.doubleValue(),
+					     z.doubleValue()); :}
+	;
+
+distance_command ::=
+	  DISTANCE selection:first TO selection:second
+		{:
+			for(int i = 0; i < first.size(); i++){
+				Atom firstAtom = (Atom)first.get(i);
+				for(int j = 0; j < second.size(); j++){
+					Atom secondAtom = (Atom)second.get(j);
+					parser.renderer.addDistance(firstAtom,
+							secondAtom);
+				}
+			}
+
+			//Selection.dynamicArrayCache.add(first);
+			//Selection.dynamicArrayCache.add(second);
+		:}	
+	| DISTANCE arguments:args
+		{:
+			parser.renderer.handleDistanceCommand(args);
+		:}
+	| DISTANCE CLEAR
+		{: parser.renderer.removeAllDistances(); :}
+	| DISTANCE STRING:state
+		{:
+			if(state.equals("on")){
+				parser.renderer.setDisplayDistances(true);
+			}else if(state.equals("off")){
+				parser.renderer.setDisplayDistances(false);
+			}else if(state.equals("toggle")){
+				boolean bumps =
+					parser.renderer.getDisplayDistances();
+				parser.renderer.setDisplayDistances(!bumps);
+			}else{
+				System.out.println("invalid distance state: " + state);
+			}
+		:}
+	;
+
+view_command ::=
+	  VIEW arguments:args
+		{:
+			MoleculeViewer mv = parser.renderer.moleculeViewer;
+			ViewCommand.execute(mv, args);
+		:}
+	;
+miscellaneous_command ::=
+	  SET STRING:name on_off:value
+		{:
+			if(name.equals("bondtypes")){
+				boolean b = value.equals("on") ? true : false;
+				parser.renderer.displayBondTypes(b);
+			}else if(name.equals("bump_in_same_molecule")){
+				boolean b = value.equals("on") ? true : false;
+				parser.renderer.setBumpInSameMolecule(b);
+			}else if(name.equals("symmetry")){
+				boolean b = value.equals("on") ? true : false;
+				parser.renderer.setSymmetry(b);
+			}else if(name.equals("bumps")){
+				boolean b = value.equals("on") ? true : false;
+				parser.renderer.setDisplayBumps(b);
+			}else if(name.equals("selectcount")){
+				boolean b = value.equals("on") ? true : false;
+				parser.renderer.setSelectCount(b);
+			}else{
+				System.out.println("invalid parameter " + name);
+			}
+		:}
+	| EDIT  STRING:name STRING:value selection:selectedAtoms
+		{:
+			parser.renderer.handleEditCommand(name, value, selectedAtoms);
+		:}
+	| DELETE selection:selectedAtoms
+		{:
+			parser.renderer.handleDeleteCommand(selectedAtoms);
+		:}
+	| SET STRING:name STRING:value
+		{:
+			if(name.equals("arraycopy")){
+				boolean b = value.equals("true") ? true : false;
+				// fix
+				//parser.renderer.setArrayCopy(b);
+			}else if(name.equals("minimumspacing")){
+				double d = FILE.readDouble(value);
+				Surface.setMinimumSpacing(d);
+			}else if(name.equals("contoursize")){
+				int d = FILE.readInteger(value);
+				parser.renderer.setContourSize(d);
+			}else if(name.equals("pick")){
+				int pickMode = -1;
+				if(value.equals("distances")){
+					pickMode = parser.renderer.DISTANCE_PICK;
+				}else if(value.equals("angles")){
+					pickMode = parser.renderer.ANGLE_PICK;
+				}else{
+					System.out.println("invalid pick mode " + value);
+				}
+
+				if(pickMode != -1){
+					parser.renderer.setPickMode(pickMode);
+				}
+			}else{
+				System.out.println("invalid parameter " + name);
+			}
+		:}
+	| ANGLE CLEAR
+		{:
+			parser.renderer.removeAllAngles();
+		:}
+	| TORSION CLEAR
+		{:
+			parser.renderer.removeAllTorsions();
+		:}
+	| FETCH STRING:urlName
+		{:
+			try {
+				URL url = new URL(urlName);
+				//System.out.println("opened url " + url);
+				DataInputStream dis = new DataInputStream(url.openStream());
+				//System.out.println("opened dis " + dis);
+				String line;
+				String contents = "";
+				String lineSeparator =
+					java.lang.System.getProperty("line.separator");
+
+				parser.urlContentsBuffer.setLength(0);
+
+				while((line = dis.readLine()) != null){
+					//contents += line;
+					//contents += lineSeparator;
+					parser.urlContentsBuffer.append(line);
+					parser.urlContentsBuffer.append(lineSeparator);
+					//System.out.println("saw line <" + line + ">");
+				}
+
+				//System.out.println("got end of file");
+
+				dis.close();
+
+				//System.out.println("closed dis");
+
+				parser.urlContents = parser.urlContentsBuffer.toString();
+
+				//System.out.println("set return value");
+			}catch(Exception e){
+				System.out.println("error opening url: " + urlName);
+				System.out.println("" + e);
+			}
+		:}
+	| MATRIX
+		number:x00 number:x01 number:x02 number:x03
+		number:x10 number:x11 number:x12 number:x13
+		number:x20 number:x21 number:x22 number:x23
+		number:x30 number:x31 number:x32 number:x33
+		{:
+			Matrix rm = parser.renderer.renderer.rotationMatrix;
+			rm.x00 = x00.doubleValue();
+			rm.x01 = x01.doubleValue();
+			rm.x02 = x02.doubleValue();
+			rm.x03 = x03.doubleValue();
+			rm.x10 = x10.doubleValue();
+			rm.x11 = x11.doubleValue();
+			rm.x12 = x12.doubleValue();
+			rm.x13 = x13.doubleValue();
+			rm.x20 = x20.doubleValue();
+			rm.x21 = x21.doubleValue();
+			rm.x22 = x22.doubleValue();
+			rm.x23 = x23.doubleValue();
+			rm.x30 = x30.doubleValue();
+			rm.x31 = x31.doubleValue();
+			rm.x32 = x32.doubleValue();
+			rm.x33 = x33.doubleValue();
+		:}
+	| BACKGROUND STRING:colorName
+		{:
+			int color = Color32.getColorFromName(colorName);
+			parser.renderer.renderer.setBackgroundColor(color);
+		:}
+	| REPAINT
+		{:
+			parser.renderer.moleculeViewer.repaint();
+		:}
+	| PRINT STRING:output
+		{:
+			parser.renderer.moleculeViewer.handlePrint(output);
+		:}
+	| RUN STRING:script
+		{:
+			parser.renderer.executeScript(script);
+		:}
+	| SLIDE arguments:args
+		{:
+			parser.renderer.handleSlideCommand(args);
+		:}
+	| STRING:s arguments:args
+		{:
+			try {
+				parser.renderer.handleUserCommand(s, args);
+			}catch(Throwable t){
+				t.printStackTrace();
+			}
+		:}
+	| UPDATE arguments:args number_list:nl
+		{:
+			parser.renderer.handleUpdateCommand(args, nl);
+		:}
+	;
+
+animation_command ::=
+	  ANIMATE arguments:args
+		{:
+			parser.renderer.moleculeViewer.handleAnimation(args);
+		:}
+	;
+	
+/*
+modelling_command ::=
+	  MODELLING arguments:args
+		{:
+			astex.xmt.XMT.execute(parser.renderer.moleculeViewer, args);
+		:}
+	| FORCEFIELD arguments:args
+		{:
+			astex.xmt.Forcefield.execute(parser.renderer.moleculeViewer, args);
+		:}
+	;
+*/
+
+light_command ::= LIGHT INTEGER:n arguments:args
+		{:
+			parser.renderer.handleLightCommand(n.intValue(), args);
+		:}
+	;
+
+hbond_command ::= HBOND arguments:args
+		{:
+			parser.renderer.handleHbondCommand(args);
+		:}
+	;
+
+
+active_site_command ::= ACTIVE_SITE arguments:args
+		{:
+		astex.design.ActiveSite.handleCommand(parser.renderer.moleculeViewer, args);
+		:}
+	;
+
+
+skeleton_command ::= SKELETON arguments:args
+		{:
+			astex.xmt.Skeleton.execute(parser.renderer.moleculeViewer, args);
+		:}
+	;
+
+schematic_command ::=
+	  SECSTRUC arguments:args selection:selectedAtoms
+		{:
+			String type = args.getString("-type", null);
+
+			if(type == null){
+				Tmesh tm = 
+				SecondaryStructure.assign(parser.renderer.getMolecules());
+				if(SecondaryStructure.debug){
+					parser.renderer.addGraphicalObject(tm);
+				}
+			}else{
+				int sstype = -1;
+				if(type.equals("helix")){
+					sstype = Residue.Helix;
+				}else if(type.equals("sheet")){
+					sstype = Residue.Sheet;
+				}else if(type.equals("coil")){
+					sstype = Residue.Coil;
+				}
+
+				if(sstype != -1){
+					// inefficient
+					for(int i = 0; i < selectedAtoms.size(); i++){
+						Atom a = (Atom)selectedAtoms.get(i);
+						Residue r = a.getResidue();
+						r.setSecondaryStructure(sstype);
+					}
+				}
+			}
+		:}
+	| SCHEMATIC arguments:args selection:selectedAtoms
+		{:
+			Tmesh tm = Schematic.create(args, parser.renderer, selectedAtoms);
+			parser.renderer.addGraphicalObject(tm);
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	;
+
+load_command ::=
+	  LOAD MOLECULE STRING:name STRING:file
+		{: parser.renderer.addMolecule(file, name); :}
+	| LOAD MOLECULE STRING:file
+		{: parser.renderer.addMolecule(file, file); :}
+	| ZAP
+		{: parser.renderer.reset(); :}
+	;
+
+object_command ::=
+	  OBJECT REMOVE STRING:pattern
+		{:
+			parser.renderer.removeGraphicalObjects(pattern);
+		:}
+	| OBJECT LOAD STRING:name STRING:filename
+		{:
+			Tmesh tm = Tmesh.read(filename);
+			tm.setName(name);
+			parser.renderer.addGraphicalObject(tm);
+		:}
+	| OBJECT DISPLAY STRING:pattern on_off:state
+		{:
+			MoleculeRenderer r = parser.renderer;
+
+			if(state.equals("off")){
+				r.renderer.setGraphicalObjectsVisibility(pattern, 0);
+			}else if(state.equals("on")){
+				r.renderer.setGraphicalObjectsVisibility(pattern, 1);
+			}else if(state.equals("toggle")){
+				r.renderer.setGraphicalObjectsVisibility(pattern, 2);
+			}else{
+				// otherwise assume it is a colour name.
+				int c = Color32.getColorFromName(state);
+				r.renderer.setGraphicalObjectsColour(pattern, c);
+			}
+
+		:}
+	| OBJECT STRING:pattern DISPLAY on_off:state
+		{:
+			MoleculeRenderer r = parser.renderer;
+
+			if(state.equals("off")){
+				r.renderer.setGraphicalObjectsVisibility(pattern, 0);
+			}else if(state.equals("on")){
+				r.renderer.setGraphicalObjectsVisibility(pattern, 1);
+			}else if(state.equals("toggle")){
+				r.renderer.setGraphicalObjectsVisibility(pattern, 2);
+			}else{
+				// otherwise assume it is a colour name.
+				int c = Color32.getColorFromName(state);
+				r.renderer.setGraphicalObjectsColour(pattern, c);
+			}
+
+		:}
+	| OBJECT STRING:name BACKFACE on_off:state
+		{:
+			if(state.equals("on")){
+				parser.renderer.renderer.setBackface(name, true);
+			}else if(state.equals("off")){
+				parser.renderer.renderer.setBackface(name, false);
+			}else{
+				System.out.println("object backface: illegal state " + state);
+			}
+		:}
+	| OBJECT STRING:name TEXTURE STRING:texture
+		{:
+			if(texture.equals("off")){
+				parser.renderer.renderer.applyTexture(name, null);
+			}else{
+				parser.renderer.renderer.applyTexture(name, texture);
+			}
+		:}
+	| OBJECT STRING:name TEXTURE STRING:range number:value number:value2
+		{:
+			int uv = 0;
+	
+			if(range.equals("urange")){
+				uv = Tmesh.UTexture;
+			}else if(range.equals("vrange")){
+				uv = Tmesh.VTexture;
+			}else{
+				System.out.println("texture command not recognised: " + range);
+			}
+
+			if(uv > 0){
+				double min = value.doubleValue();
+				double max = value2.doubleValue();
+
+				DynamicArray objects =
+					parser.renderer.renderer.getGraphicalObjects(name);
+					int objectCount = objects.size();
+
+				double scale = 1./(max - min);
+
+				for(int i = 0; i < objectCount; i++){
+					Tmesh object = (Tmesh)objects.get(i);
+					object.setTextureRange(uv, min, max);
+				}
+			}
+
+		:}
+	| OBJECT STRING:name TEXTURE STRING:attribute number:value
+		{:
+			double val = value.doubleValue();
+			int att = 0;
+    			if(attribute.equals("vscale")){
+				att = Tmesh.VScale;
+    			}else if(attribute.equals("uscale")){
+				att = Tmesh.UScale;
+    			}else if(attribute.equals("vdiv")){
+				att = Tmesh.VScale;
+				val = 1.0/val;
+    			}else if(attribute.equals("udiv")){
+				att = Tmesh.UScale;
+				val = 1.0/val;
+    			}else if(attribute.equals("voffset")){
+				att = Tmesh.VOffset;
+    			}else if(attribute.equals("uoffset")){
+				att = Tmesh.UOffset;
+			}else{
+				System.out.println("unknown texture attribute " + attribute);
+			}
+
+			if(att != 0){
+				parser.renderer.renderer.scaleTexture(name, att, val);
+			}
+		:}
+	| OBJECT STRING:name TEXTURE DISTANCE
+		 STRING:uvspec selection:selectedAtoms
+		{:
+			int uv = -1;
+			if(uvspec.equals("u")){
+				uv = Tmesh.UTexture;
+			}else if(uvspec.equals("v")){
+				uv = Tmesh.VTexture;
+			}
+
+			DynamicArray objects =
+				parser.renderer.renderer.getGraphicalObjects(name);
+
+			for(int i = 0; i < objects.size(); i++){
+				Tmesh tm = (Tmesh)objects.get(i);
+				Texgen.distance(tm, selectedAtoms, uv);
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| OBJECT STRING:name TEXTURE CURVATURE
+		 STRING:uvspec number:dmax selection:selectedAtoms
+		{:
+			int uv = -1;
+			if(uvspec.equals("u")){
+				uv = Tmesh.UTexture;
+			}else if(uvspec.equals("v")){
+				uv = Tmesh.VTexture;
+			}
+
+			DynamicArray objects =
+				parser.renderer.renderer.getGraphicalObjects(name);
+
+			for(int i = 0; i < objects.size(); i++){
+				Tmesh tm = (Tmesh)objects.get(i);
+				Texgen.curvature(tm, selectedAtoms, uv,
+					dmax.doubleValue());
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| OBJECT STRING:name TEXTURE ELECTROSTATIC
+		 STRING:uvspec number:dmax selection:selectedAtoms
+		{:
+			int uv = -1;
+			if(uvspec.equals("u")){
+				uv = Tmesh.UTexture;
+			}else if(uvspec.equals("v")){
+				uv = Tmesh.VTexture;
+			}
+
+			DynamicArray objects =
+				parser.renderer.renderer.getGraphicalObjects(name);
+
+			for(int i = 0; i < objects.size(); i++){
+				Tmesh tm = (Tmesh)objects.get(i);
+				Texgen.property_map(tm, selectedAtoms, uv,
+					dmax.doubleValue(), false,
+					Texgen.Electrostatic);
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| OBJECT STRING:name TEXTURE LIPOPHILICITY
+		 STRING:uvspec number:dmax selection:selectedAtoms
+		{:
+			int uv = -1;
+			if(uvspec.equals("u")){
+				uv = Tmesh.UTexture;
+			}else if(uvspec.equals("v")){
+				uv = Tmesh.VTexture;
+			}
+
+			DynamicArray objects =
+				parser.renderer.renderer.getGraphicalObjects(name);
+
+			for(int i = 0; i < objects.size(); i++){
+				Tmesh tm = (Tmesh)objects.get(i);
+				Texgen.property_map(tm, selectedAtoms, uv,
+					dmax.doubleValue(), false,
+					Texgen.Lipophilicity);
+			}
+
+			//Selection.dynamicArrayCache.add(selectedAtoms);
+		:}
+	| OBJECT STRING:name COLOR STRING:colorName
+		{:
+			DynamicArray objects =
+				parser.renderer.renderer.getGraphicalObjects(name);
+			int color = Color32.getColorFromName(colorName);
+
+			for(int i = 0; i < objects.size(); i++){
+				Tmesh tm = (Tmesh)objects.get(i);
+				tm.setColorStyle(Tmesh.ObjectColor);
+				tm.setColor(color);
+			}
+		:}
+	| OBJECT STRING:name LINEWIDTH number:w
+		{:
+			DynamicArray objects =
+				parser.renderer.renderer.getGraphicalObjects(name);
+			for(int i = 0; i < objects.size(); i++){
+				Tmesh tm = (Tmesh)objects.get(i);
+				tm.setLineWidth(w.doubleValue());
+			}
+		:}
+	| OBJECT STRING:name TRANSPARENCY INTEGER:t
+		{:
+			DynamicArray objects =
+				parser.renderer.renderer.getGraphicalObjects(name);
+			for(int i = 0; i < objects.size(); i++){
+				Tmesh tm = (Tmesh)objects.get(i);
+				tm.setTransparency(t.intValue());
+			}
+		:}
+	| OBJECT STRING:name CLIP STRING:uvSpec
+		{:
+			int uv = 0;
+			if(uvSpec.indexOf("u") != -1) uv |= Tmesh.UTexture;
+			if(uvSpec.indexOf("v") != -1) uv |= Tmesh.VTexture;
+
+			DynamicArray objects =
+				parser.renderer.renderer.getGraphicalObjects(name);
+
+			for(int i = 0; i < objects.size(); i++){
+				Tmesh tm = (Tmesh)objects.get(i);
+				tm.clip(uv);
+			}
+		:}
+	| OBJECT STRING:name COPYTO STRING:newname
+		{:
+			DynamicArray objects =
+				parser.renderer.renderer.getGraphicalObjects(name);
+
+			Tmesh tm = Tmesh.copy(objects);
+			tm.setName(newname);
+			parser.renderer.addGraphicalObject(tm);
+		:}
+	| OBJECT STRING:name TEXTURE RECTANGULAR
+		{:
+
+			DynamicArray objects =
+				parser.renderer.renderer.getGraphicalObjects(name);
+
+			for(int i = 0; i < objects.size(); i++){
+				Tmesh tm = (Tmesh)objects.get(i);
+				Texgen.rectangular(tm);
+			}
+		:}
+	| OBJECT STRING:name arguments:args
+		{:
+			parser.renderer.handleObjectCommand(name, args);
+		:}
+	;
+
+texture_command ::=
+	  TEXTURE LOAD STRING:name STRING:image
+		{:
+			Hashtable textureHash =
+				parser.renderer.renderer.textures;
+
+			if(textureHash.get(name) == null){
+				Texture tex = Texture.loadTexture(image);
+
+				if(tex != null){
+					textureHash.put(name, tex);
+				}else{
+					System.out.println("couldn't load texture " +
+						 image);
+				}
+			}else{
+				System.out.println("texture " + name +
+						" already defined: not reloaded");
+			}
+		:}
+	| TEXTURE STRING:name SIMPLE
+		{:
+			Texture tex = Texture.simpleTexture();
+			parser.renderer.renderer.textures.put(name, tex);
+		:}
+	| TEXTURE STRING:name LIPOPHILICITY
+		{:
+			Texture tex = Texture.lipophilicityTexture();
+			parser.renderer.renderer.textures.put(name, tex);
+		:}
+	| TEXTURE arguments:args
+		{:
+			parser.renderer.handleTextureCommand(args);
+		:}
+	| TEXTURE REMOVE STRING:name
+	;
+
+render_style ::=
+	  SPHERES	{: RESULT = new Integer(Atom.VDWSphere); :}
+	| CYLINDERS	{: RESULT = new Integer(Atom.Cylinder); :}
+	| STICKS	{: RESULT = new Integer(Atom.BallAndStick); :}
+	| LINES		{: RESULT = new Integer(Atom.Displayed); :}
+	;
+
+on_off ::=
+	  ON		{: RESULT = new String("on"); :}
+	| OFF		{: RESULT = new String("off"); :}
+	| TOGGLE	{: RESULT = new String("toggle"); :}
+	;
+
+arguments ::=
+	  /* nothing */ {: RESULT = new Arguments(); :}
+	| arg_list:a {: RESULT = a; :}
+	;
+
+arg_list ::=
+	  arg:a
+		{: Arguments h = new Arguments(); h.put(a[0], a[1]); RESULT = h; :}
+	| arg_list:h arg:a
+		{: h.put(a[0], a[1]); RESULT = h; :}
+	;
+
+arg ::=
+	  ARG:a STRING:value
+		{: Object o[] = new Object[2]; o[0] = a; o[1] = value; RESULT = o; :}
+	| ARG:a INTEGER:i
+		{: Object o[] = new Object[2]; o[0] = a; o[1] = i; RESULT = o; :}
+	| ARG:a DOUBLE:d
+		{: Object o[] = new Object[2]; o[0] = a; o[1] = d; RESULT = o; :}
+	| ARG:a LCURLY selection:selectedAtoms RCURLY
+		{:
+			Object o[] = new Object[2];
+			o[0] = a; o[1] = selectedAtoms;
+			RESULT = o;
+		:}
+	| ARG:a TRUE
+		{:
+			Object o[] = new Object[2];
+			o[0] = a; o[1] = Boolean.TRUE;
+			RESULT = o;
+		:}
+	| ARG:a FALSE
+		{:
+			Object o[] = new Object[2];
+			o[0] = a; o[1] = Boolean.FALSE;
+			RESULT = o;
+		:}
+	;
+
+selection ::=
+	  selection_expression:mask
+		{:
+			DynamicArray selectedAtoms =
+				Selection.maskToArray(parser.renderer, mask);
+			if(parser.renderer.getSelectCount()){
+				System.out.println("[" + selectedAtoms.size() + "]");
+			}
+			RESULT = selectedAtoms;
+		:}
+	;
+
+selection_expression ::=
+	  statement:mask
+		{: RESULT = mask; :}
+	| LPAREN selection_expression:mask RPAREN
+		{: RESULT = mask; :}
+	| selection_expression:mask1 AND selection_expression:mask2
+		{: RESULT = Selection.and(mask1, mask2); :}
+	| selection_expression:mask1 OR selection_expression:mask2
+		{: RESULT = Selection.or(mask1, mask2); :}
+	| NOT selection_expression:mask
+		{: RESULT = Selection.not(mask); :}
+	| BYRESIDUE selection_expression:mask
+		{: RESULT = Selection.byresidue(parser.renderer, mask); :}
+	| BONDED selection_expression:mask
+		{: RESULT = Selection.bonded(parser.renderer, mask); :}
+	| SPHERE number:r AROUND selection_expression:mask
+		{: RESULT =
+			Selection.sphere(parser.renderer,
+				r.doubleValue(), mask);
+		:}
+	| CONTACT number:r selection_expression:mask
+		{: RESULT =
+			Selection.contact(parser.renderer,
+				r.doubleValue(), mask);
+		:}
+	| GRAPH selection_expression:mask
+		{:
+		  RESULT = Selection.graph(parser.renderer, mask);
+		:}
+	| SPHERE number:r AROUND number:x number:y number:z
+		{: RESULT =
+			Selection.sphere(parser.renderer, 
+				r.doubleValue(),
+				x.doubleValue(),
+				y.doubleValue(),
+				z.doubleValue());
+		:}
+    	;
+
+statement ::=
+	  ID id_list:v
+		{: RESULT = Selection.id(parser.renderer, v); :}
+	| ATOM string_list:v
+		{: RESULT = Selection.atom(parser.renderer, v); :}
+	| ELEMENT id_list:v
+		{: RESULT = Selection.element(parser.renderer, v); :}
+	| RESIDUE id_list:v
+		{: RESULT = Selection.residue(parser.renderer, v); :}
+	| MODULO INTEGER:n
+		{: RESULT = Selection.modulo(parser.renderer, n.intValue()); :}
+	| SEQUENTIAL id_list:v
+		{: RESULT = Selection.sequential(parser.renderer, v); :}
+	| INSERTION STRING:s
+		{: RESULT = Selection.insertion(parser.renderer, s); :}
+	| ALL
+		{: RESULT = Selection.all(parser.renderer); :}
+	| NONE
+		{: RESULT = Selection.none(parser.renderer); :}
+	| AMINOACID
+		{: RESULT = Selection.aminoacid(parser.renderer); :}
+	| SOLVENT
+		{: RESULT = Selection.solvent(parser.renderer); :}
+	| DNA
+		{: RESULT = Selection.dna(parser.renderer); :}
+	| IONS
+		{: RESULT = Selection.ions(parser.renderer); :}
+	| CURRENT
+		{: RESULT = Selection.current(parser.renderer); :}
+	| SURFACE
+		{: RESULT = Selection.property(parser.renderer, Atom.Surface); :}
+	| CONTEXT
+		{: RESULT = Selection.property(parser.renderer, Atom.SurfaceContext); :}
+	| PROPERTY
+		{: RESULT = Selection.property(parser.renderer, Atom.Property); :}
+	| ACTIVE
+		{: RESULT = Selection.property(parser.renderer, Atom.ModellingActive); :}
+	| ENVIRONMENT
+		{: RESULT = Selection.property(parser.renderer, Atom.ModellingEnvironment); :}
+	| FIXED
+		{: RESULT = Selection.property(parser.renderer, Atom.ModellingFixed); :}
+	| XRAY
+		{: RESULT = Selection.property(parser.renderer, Atom.ModellingXray); :}
+	| LABELLED
+		{: RESULT = Selection.labelled(parser.renderer); :}
+	| WIDE
+		{: RESULT = Selection.wide(parser.renderer); :}
+	| DISPLAYED
+		{: RESULT = Selection.displayed(parser.renderer); :}
+	| DEFAULT
+		{: RESULT = Selection.defaultSelection(parser.renderer); :}
+	| NAME string_list:v
+		{: RESULT = Selection.name(parser.renderer, v); :}
+	| CHAIN string_list:v
+		{: RESULT = Selection.chain(parser.renderer, v); :}
+	| MOLECULE string_list:v
+		{: RESULT = Selection.molecule(parser.renderer, v); :}
+	| MOLEXACT string_list:v
+		{: RESULT = Selection.moleculeExact(parser.renderer, v); :}
+	| ATTRIBUTE:a OPERATOR:o number:d
+		{:
+			RESULT = Selection.attribute(parser.renderer,
+		 					a.intValue(),
+							o.intValue(),
+		 					d.doubleValue());
+		:}
+	| ID OPERATOR:o number:d
+		{:
+			RESULT = Selection.attribute(parser.renderer,
+		 					Atom.ID,
+							o.intValue(),
+		 					d.doubleValue());
+		:}
+
+	| string_list:composites
+		{:
+		   	//RESULT = Selection.hierarchy(parser.renderer, composites);
+		:}
+	| COMPOSITE string_list:v
+		{: RESULT = Selection.composite(parser.renderer, v); :}
+	| GROUP STRING:definition
+		{:
+			Hashtable group =
+				(Hashtable)parser.renderer.groups.get(definition);
+			if(group == null){
+				System.out.println("attempt to use undefined group " + definition);
+				RESULT = Selection.none(parser.renderer);
+			}else{
+				RESULT = Selection.group(parser.renderer, group);
+			}
+		:}
+	| POP
+		{:
+			DynamicArray selectedAtoms = parser.renderer.popSelection();
+
+			if(selectedAtoms != null){
+				RESULT = Selection.arrayToMask(parser.renderer, selectedAtoms);
+			}else{
+				RESULT = Selection.none(parser.renderer);
+			}
+		:}
+	| PEEK INTEGER:i
+		{:
+			DynamicArray selectedAtoms = parser.renderer.peekSelection(i.intValue());
+
+			RESULT = Selection.arrayToMask(parser.renderer, selectedAtoms);
+		:}
+	;
+
+string_list ::=
+	  STRING:s
+		{: Vector v = new Vector(); v.addElement(s); RESULT = v; :}
+	| string_list:v STRING:s
+		{: v.addElement(s); RESULT = v; :}
+	;
+
+number ::=
+	  INTEGER:i
+		{: RESULT = new Double((double)i.intValue()); :}
+	| DOUBLE:d
+		{: RESULT = d; :}
+	;
+
+id_list ::=
+	  id:i
+		{: Vector v = new Vector(); v.addElement(i); RESULT = v; :}
+	| id_list:v id:i
+		{: v.addElement(i); RESULT = v; :}
+	;
+
+number_list ::=
+	  number:f
+		{: FloatArray fa = new FloatArray(); fa.add((float)f.doubleValue()); RESULT = fa; :}
+	| number_list:fa number:f
+		{: fa.add((float)f.doubleValue()); RESULT = fa; :}
+	;
+
+id ::=
+	  INTEGER:n {:
+			int range[] = new int[2];
+			range[0] = n.intValue();
+			range[1] = n.intValue();
+			RESULT = range;
+		:}
+	| INTEGER:r TO INTEGER:l {:
+			int range[] = new int[2];
+			range[0] = r.intValue();
+			range[1] = l.intValue();
+			RESULT = range;
+		:}
+	;

@@ -1,0 +1,28 @@
+set symmetry off;
+
+view -wuantialias true;
+
+molecule load protein '../pdb/621p.pdb';
+
+color_by_rainbow aminoacid;
+secstruc aminoacid;
+
+schematic -name ribbon aminoacid;
+
+/*view -background '#444';*/
+
+center name GTN;
+
+display cylinders on name GTN;
+
+surface -solid true protein_surface dodgerblue name GTN;
+
+/*object protein_surface transparency 128;*/
+
+/*
+animate -state 'delete';
+animate -mode roll -angle 360.0 -steps 30;
+animate -state start -interactive true;
+*/
+
+color_by_atom;

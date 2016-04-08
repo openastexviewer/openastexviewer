@@ -1,0 +1,173 @@
+<!--
+Applet Thinlet configuration file.
+
+Note this file configures a number of things
+
+1) A script to execute at startup.  This is associated with an
+invisible panel at the end of the file.
+
+2) The physical description and layout of the controls that will
+affect AstexViewer. Colours for thinlet must be specfied using hex
+color triples, which is a slight pain.
+
+3) The scripting actions. Note that executeUsing can be used to
+execute the commands that are associated with a particular control,
+but using the parameters of another. In this way the commands to
+generate a surface can be written just once and the name and color can
+be taken from another control.
+
+Copyright (C) Astex Technology Ltd., 2005
+-->
+<panel weightx="1" weighty="1">
+  <tabbedpane weightx="1" weighty="1">
+    <tab text="Controls">
+      <panel weightx="1" weighty="1" columns="3">
+	<label>
+	</label>
+	<label
+	  alignment="center"
+	  text="P"
+	  tooltip="Active site surface">
+	</label>
+	<label
+	  alignment="center"
+	  text="L"
+	  tooltip="Ligand surface">
+	</label>
+	<checkbox
+	  foreground="#00ff00"
+	  text="1BNU"
+	  selected="true"
+	  action="execute(this)"
+	  property="command=molecule display mol1 $o">
+	</checkbox>
+	<checkbox
+	  name="mol1"
+	  foreground="#44ff44"
+	  selected="false"
+	  action="executeUsing(protein_surface,this)">
+	</checkbox>
+	<checkbox
+	  name="mol1"
+	  foreground="#00ff00"
+	  selected="false"
+	  action="executeUsing(ligand_surface,this)">
+	</checkbox>
+	<checkbox
+	  text="1IF7"
+	  foreground="#ffa500"
+	  selected="true"
+	  action="execute(this)"
+	  property="command=molecule display mol2 $o">
+	</checkbox>
+	<checkbox
+	  name="mol2"
+	  foreground="#ffa544"
+	  selected="false"
+	  action="executeUsing(protein_surface,this)">
+	</checkbox>
+	<checkbox
+	  name="mol2"
+	  foreground="#ffa500"
+	  selected="false"
+	  action="executeUsing(ligand_surface,this)">
+	</checkbox>
+	<checkbox
+	  text="1OKM"
+	  foreground="#ffff00"
+	  selected="true"
+	  action="execute(this)"
+	  property="command=molecule display mol3 $o">
+	</checkbox>
+	<checkbox
+	  name="mol3"
+	  foreground="#ffff44"
+	  selected="false"
+	  action="executeUsing(protein_surface,this)">
+	</checkbox>
+	<checkbox
+	  name="mol3"
+	  foreground="#ffff00"
+	  selected="false"
+	  action="executeUsing(ligand_surface,this)">
+	</checkbox>
+	<separator colspan="3"></separator>
+	<checkbox
+	  text="Spin"
+	  action="execute(this)"
+	  property="command=astex.Spin -active $b">
+	</checkbox>
+	<label colspan="2">
+	</label>
+	<checkbox
+	  text="Antialias"
+	  action="execute(this)"
+	  property="command=view -antialias $b">
+	</checkbox>
+	<label colspan="2">
+	</label>
+	<separator colspan="3"></separator>
+	<button
+	  name="resetview"
+	  text="Reset"
+	  action="execute(this)"
+	  property="command=
+matrix -0.92916   -0.14879    0.33842    0.00000 -0.11228    0.98577    0.12510    0.00000 -0.35222    0.07824   -0.93264    0.00000 0.00000    0.00000    0.00000    1.00000|
+center sphere 4 around group ligands">
+	</button>
+	<panel
+	  visible="false"
+	  name="protein_surface"
+	  property="init=
+select molecule $n and aminoacid and sphere 8 around group ligands|
+surface -solid true $n_ps green molecule $n and aminoacid and sphere 16 around group ligands|
+select none|
+object $n_ps texture distance u group ligands|
+object $n_ps texture urange 0.0 6.0|
+object $n_ps clip u|
+object $n_ps color $f
+	  ;command=object $n_ps display $o">
+	</panel>
+	<panel
+	  visible="false"
+	  name="ligand_surface"
+	  property="init=
+surface -solid true $n_ls $f molecule $n and group ligands|
+object $n_ls transparency 128|
+object $n_ls backface on|
+	  ;command=object $n_ls display $o">
+	</panel>
+      </panel>
+    </tab>
+    <tab text="Info">
+      <textarea
+	editable="false"
+	wrap="true"
+	text="Three carbonic anhydrase complexes (PDB codes 1BNU, 1IF7 and 1OKM. 1IF7 has been fitted to 1BNU on C-alpha atoms).
+
+The ligand structures are shown in wide bonds. The active site Zn atom has a cyan dot surface.">
+      </textarea>
+    </tab>
+  </tabbedpane>
+  <panel
+    visible="false"
+    init="execute(this)"
+    property="command=
+set symmetry off|
+molecule load mol1 'anhydrase/1bnu.pdb.gz'|
+molecule load mol2 'anhydrase/1bnu_1if7.pdb.gz'|
+molecule load mol3 'anhydrase/1okm.pdb.gz'|
+define ligands name AL3 or name SBR or name SAB|
+select group ligands|
+/*color purple not sphere 10 around current*/|
+display sphere 15 around current|
+display cylinders on current|
+select none|
+color orange element 6 and molecule mol2|
+color yellow element 6 and molecule mol3|
+    "
+    >
+  </panel>
+  <panel visible="false" init="execute(resetview)">
+  </panel>
+</panel>

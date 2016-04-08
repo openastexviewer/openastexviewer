@@ -1,0 +1,137 @@
+set symmetry off;
+
+display lines off solvent;
+
+view
+	-shadows	false
+	-realspheres	true
+	-fog		false
+	-background	black
+	-defaultwidth	320
+	-defaultheight	240
+	-defaultsample	2
+	-defaultcompress false
+	-defaultimage	"movie/image%04d.bmp"
+	-stepmultiple	3
+	;
+
+animate
+	-mode 		command
+	-command	"color_by_rainbow aminoacid and element 6; secstruc current; schematic -name ribbon aminoacid; object ribbon display off;"
+	-steps		1
+	;
+
+animate
+	-mode		roll
+	-angle		360.0
+	-steps		90
+	-command	"object ribbon display on; object ribbon transparency ${0,255}d;"
+	;
+
+animate
+	-mode 		command
+	-command	"surface -solid true ligand_surface white name GTN; object ligand_surface display off; display cylinders on name GTN;"
+	-steps		1
+	;
+
+animate
+	-mode		recenter
+	-selection	{ sphere 5 around name GTN }
+	-command	"object ligand_surface display on; object ligand_surface transparency ${0,128}d;"
+	-steps		20
+	;
+
+animate
+	-mode		roll
+	-angle		360.0
+	-steps		90
+	;
+animate
+	-mode 		command
+	-command	"distance -delete bumps; distance -name bumps -on 0.2 -off 0.3 -radius 0.04 -colour white -mode pairs -from { name GTN and element 7 8 } -to { aminoacid and element 7 8 } -dmax 5.0 -contact 0.0 -format '<3d=true,size=0.4,colour=cyan,justify=vh>%.2f';"
+	-steps		1
+	;
+
+animate
+	-mode		roll
+	-angle		360.0
+	-command	"object ligand_surface display on; object ligand_surface transparency ${128,0}d;"
+	-steps		90
+	;
+
+animate
+	-mode 		command
+	-command	"distance -delete bumps; surface -solid true protein_surface white aminoacid; object protein_surface display off; object protein_surface color white;"
+	-steps		1
+	;
+
+animate
+        -mode           recenter
+        -matrix         "1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1"
+        -center         "6.728,25.106,9.5625"
+        -radius         27.339419
+        -clipfront      26.037542
+        -clipback       -26.037542
+	-command	"object protein_surface display on; object protein_surface transparency ${0,255}d;"
+        -steps          20
+        ;
+
+animate
+	-mode 		command
+	-command	"display lines off all; object ribbon display off;"
+	-steps		1
+	;
+
+animate
+	-mode 		command
+	-command	"object protein_surface backface on; object protein_surface texture distance v name GTN; texture -name plain -coord v -values 'white'; object protein_surface texture plain;"
+	-steps		1
+	;
+
+animate
+	-mode		roll
+	-angle		360.0
+	-steps		90
+	-command	"object protein_surface texture vrange 0 ${25,8}f;"
+	;
+
+animate
+	-mode		recenter
+	-selection	{ sphere 5 around name GTN }
+	-steps		20
+	-command	"object ribbon transparency ${0,255}d; object ribbon display on;"
+	;
+
+animate
+	-mode 		command
+	-command	"object protein_surface clip v; run 'lipophilicity.properties'; object protein_surface texture lipophilicity u 7.0 aminoacid; texture load rainbow 'images/textures/red2blue.jpg';object protein_surface texture rainbow;"
+	-steps		1
+	;
+
+animate
+	-mode		roll
+	-angle		360.0
+	-steps		90
+	;
+
+animate
+	-mode 		command
+	-command	"display cylinders off all; display lines on all;"
+	-steps		1
+	;
+
+animate
+        -mode           recenter
+        -matrix         "1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1"
+        -center         "6.728,25.106,9.5625"
+        -radius         27.339419
+        -clipfront      26.037542
+        -clipback       -26.037542
+	-command	"object protein_surface display on; object protein_surface transparency ${255,0}d; object ribbon transparency ${255,0}d;"
+        -steps          20
+        ;
+
+animate
+	-state		start
+	-interactive	false
+	;

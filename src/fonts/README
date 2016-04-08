@@ -1,0 +1,5 @@
+These are actually gzipped byte arrays of size 512*512.
+They are renamed .properties so that they will load correctly
+out of Java .jar files when running in a web browser.
+
+They were created with ../support/font2gif.java

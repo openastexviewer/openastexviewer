@@ -1,0 +1,98 @@
+<panel weightx="1" weighty="1">
+  <label weightx="1" weighty="1">
+  </label>
+  <table weightx="1" weighty="1">
+    <header>
+      <column text="bob" width="40">
+      </column>
+      <column text="bob2" width="40">
+      </column>
+      <column>
+      </column>
+    </header>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+    <row>
+      <cell width="40" height="40" text="3" paint="paintTest">
+      </cell>
+      <cell width="40" height="40" text="33" paint="paintTest">
+      </cell>
+      <cell width="40" height="40"></cell>
+    </row>
+  </table>
+</panel>

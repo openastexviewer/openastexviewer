@@ -1,0 +1,445 @@
+int ixL, ixR;
+int zscale;
+int shade;
+
+#ifdef ZTEST
+#undef ZTEST
+#endif
+
+#ifdef CLIPPING
+#define ZTEST 	(z < frontClip && z > zb[i])
+#else
+#define ZTEST 	(z > zb[i])
+#endif
+
+#ifdef SETPIXEL
+#undef SETPIXEL
+#endif
+
+#if defined(UNIVERSAL)
+#define SETPIXEL()						\
+  if(texture == null || (v >=0  && v < (256*FNB))){		\
+    zb[i] = z;							\
+    lookup = LUT(nx, ny);					\
+    if((renderMode & ModeVertex) != 0){				\
+      c = Color32.pack(r>>NB, g>>NB, b>>NB);			\
+    }else if((renderMode & ModeTriangle) != 0){			\
+      c = triangleColor;					\
+    }else{							\
+      c = color;						\
+    }								\
+    c = Color32.multiply(c, dmap[lookup]);			\
+    if(transparent){						\
+      c = Color32.transparency(c, px[i], transparency);		\
+    }								\
+    s = smap[lookup];						\
+    c = Color32.add(c, s);					\
+    zscale = (z - backClip)/zRange;				\
+    shade = depthScale[zscale];					\
+    px[i] = Color32.interpolate(c, background, shade);		\
+  }
+#endif
+
+#if defined(VERTEXCOLOR) && !defined(TRANSPARENCY) && !defined(TEXTURE)
+#define SETPIXEL()						\
+  zb[i] = z;							\
+  lookup = LUT(nx, ny);						\
+  c = Color32.pack(r>>NB, g>>NB, b>>NB);			\
+  c = Color32.multiply(c, dmap[lookup]);			\
+  s = smap[lookup];						\
+  c = Color32.add(c, s);					\
+  zscale = (z - backClip)/zRange;				\
+  shade = depthScale[zscale];					\
+  px[i] = Color32.interpolate(c, background, shade);
+#endif
+
+#if defined(VERTEXCOLOR) && defined(TRANSPARENCY) && !defined(TEXTURE)
+#define SETPIXEL()						\
+  zb[i] = z;							\
+  lookup = LUT(nx, ny);						\
+  c = Color32.pack(r>>NB, g>>NB, b>>NB);			\
+  c = Color32.multiply(c, dmap[lookup]);			\
+  c = Color32.transparency(c, px[i], transparency);		\
+  s = smap[lookup];						\
+  c = Color32.add(c, s);					\
+  zscale = (z - backClip)/zRange;				\
+  shade = depthScale[zscale];					\
+  px[i] = Color32.interpolate(c, background, shade);
+#endif
+
+#if defined(TRIANGLECOLOR) && !defined(TRANSPARENCY) && !defined(TEXTURE)
+#define SETPIXEL()						\
+  zb[i] = z;							\
+  lookup = LUT(nx, ny);						\
+  s = smap[lookup];						\
+  c = Color32.multiply(triangleColor, dmap[lookup]);		\
+  s = smap[lookup];						\
+  c = Color32.add(c, s);					\
+  zscale = (z - backClip)/zRange;				\
+  shade = depthScale[zscale];					\
+  px[i] = Color32.interpolate(c, background, shade);
+#endif
+
+#if defined(TRIANGLECOLOR) && defined(TRANSPARENCY) && !defined(TEXTURE)
+#define SETPIXEL()						\
+  zb[i] = z;							\
+  lookup = LUT(nx, ny);						\
+  c = Color32.multiply(triangleColor, dmap[lookup]);		\
+  c = Color32.transparency(c, px[i], transparency);		\
+  s = smap[lookup];						\
+  c = Color32.add(c, s);					\
+  zscale = (z - backClip)/zRange;				\
+  shade = depthScale[zscale];					\
+  px[i] = Color32.interpolate(c, background, shade);
+#endif
+
+#if defined(TEXTURE) && !defined(FASTTEXTURE) && !defined(TRANSPARENCY)
+#define SETPIXEL()						\
+  ucoord = (u>>NB);						\
+  vcoord = (v>>NB);						\
+  if(ucoord < 0) ucoord = 0;					\
+  else if(ucoord > 255) ucoord = 255;				\
+  if(/*ucoord >= 0 && ucoord < 256 &&*/				\
+     vcoord >= 0 && vcoord < 256){				\
+    tcolor = tmap[ucoord+(vcoord<<8)];				\
+    if((tcolor&0xffffff) != 0){					\
+      zb[i] = z;						\
+      lookup = LUT(nx, ny);					\
+      c = Color32.multiply(tcolor, dmap[lookup]);		\
+      s = smap[lookup];						\
+      c = Color32.add(c, s);					\
+      zscale = (z - backClip)/zRange;				\
+      shade = depthScale[zscale];				\
+      px[i] = Color32.interpolate(c, background, shade);	\
+    }								\
+  }
+#endif
+
+#if defined(TEXTURE) && defined(TRANSPARENCY)
+#define SETPIXEL()						\
+  ucoord = (u>>NB);						\
+  vcoord = (v>>NB);						\
+  if(ucoord < 0) ucoord = 0;					\
+  else if(ucoord > 255) ucoord = 255;				\
+  if(/*ucoord >= 0 && ucoord < 256 &&*/				\
+     vcoord >= 0 && vcoord < 256){				\
+    tcolor = tmap[ucoord+(vcoord<<8)];				\
+    if((tcolor&0xffffff) != 0){					\
+      zb[i] = z;						\
+      lookup = LUT(nx, ny);					\
+      c = Color32.multiply(tcolor, dmap[lookup]);		\
+      c = Color32.transparency(c, px[i], transparency);		\
+      s = smap[lookup];						\
+      c = Color32.add(c, s);					\
+      zscale = (z - backClip)/zRange;				\
+      shade = depthScale[zscale];				\
+      px[i] = Color32.interpolate(c, background, shade);	\
+    }								\
+  }
+#endif
+
+#if defined(FASTTEXTURE)
+#define SETPIXEL() \
+    zb[i] = z;							   \
+    ucoord = (u>>NB);						   \
+    vcoord = (v>>NB);						   \
+    if(ucoord < 0) ucoord = 0;					   \
+    else if(ucoord > 255) ucoord = 255;				   \
+    if(vcoord < 0) vcoord = 0;					   \
+    else if(vcoord > 255) vcoord = 255;				   \
+    tcolor = tmap[ucoord+(vcoord<<NormalBits)];			   \
+    lookup = LUT(nx, ny);					   \
+    c = Color32.intensitySpecularise(tcolor,			   \
+				     imap[lookup], smap[lookup]);  \
+    zscale = (z - backClip)/zRange;				   \
+    shade = depthScale[zscale];					   \
+    px[i] = Color32.interpolate(c, background, shade);
+#endif
+
+#if defined(NORMALS) && defined(TRANSPARENCY) && !defined(TEXTURE) && !defined(TRIANGLECOLOR) && !defined(VERTEXCOLOR)
+#define SETPIXEL()						\
+  zb[i] = z;							\
+  lookup = LUT(nx, ny); c = cmap[lookup];			\
+  c = Color32.multiply(color, dmap[lookup]);			\
+  c = Color32.transparency(c, px[i], transparency);		\
+  s = smap[lookup];						\
+  c = Color32.add(c, s);					\
+  zscale = (z - backClip)/zRange;				\
+  shade = depthScale[zscale];					\
+  px[i] = Color32.interpolate(c, background, shade);
+#endif
+
+// normal, single coloured model with no transparency or texture
+#if defined(NORMALS) && !defined(TEXTURE) && !defined(TRIANGLECOLOR) && !defined(FASTTEXTURE) && !defined(TRANSPARENCY) && !defined(VERTEXCOLOR)
+#define SETPIXEL()						\
+  zb[i] = z;							\
+  c = cmap[LUT(nx,ny)];						\
+  zscale = (z - backClip)/zRange;				\
+  shade = depthScale[zscale];					\
+  px[i] = Color32.interpolate(c, background, shade);
+#endif
+
+#if defined(RGB)
+#define SETPIXEL()						\
+  zb[i] = z;							\
+  px[i] = ((r>>NB)&255)<<16 | ((g>>NB)&255)<<8 | (b>>NB)&255;
+#endif
+
+#define RND_PIXEL(p) ((p+(1<<(NB-1)))>>NB)
+
+// need to round to nearest pixel
+int ymin = RND_PIXEL(A[1]);
+int ymax = RND_PIXEL(C[1]);
+
+if (ymax < 0 || ymin >= pixelHeight){
+    return;
+}
+
+int dy = ymax - ymin;
+
+if (dy <= 0){
+    return;
+}
+
+/* Local references to the pixel and z buffer. */
+int zb[] = zbuffer, px[] = pbuffer;
+
+/* Local references to the diffuse and specular lookup tables. */
+int smap[] = highlightMap, dmap[] = diffuseMap, imap[] = intensityMap;
+
+#ifdef STATISTICS
+renderTriangleCalls++;
+
+if(A[0]>>NB == C[0]>>NB || B[0]>>NB == D[0]>>NB){
+    verticalTriangles++;
+}
+
+if((C[1]>>NB) - (A[1]>>NB) <= 0){
+    smallTriangles++;
+}
+#endif
+
+#ifdef TEXTURE
+/* The texture map. */
+int tmap[] = null;
+
+if(texture != null){
+    tmap = texture.pixels;
+}
+#endif
+
+int dx, z, r, g, b, dz = 0, dr = 0, dg = 0, db = 0;
+int nx = 0, ny = 0, dnx = 0, dny = 0, du = 0, dv = 0, u, v;
+int c, s, i, ix = 0, y;
+int cr, cg, cb;
+int ucoord, vcoord, tcolor;
+int lookup;
+int lw = pixelWidth;
+int lh = pixelHeight;
+/* The color map. */
+int cmap[] = colorMap;
+
+// left side and right side
+int xL = A[0];
+int zL = A[2];
+int xR = B[0];
+int zR = B[2];
+
+#if defined(NORMALS) || defined(UNIVERSAL)
+int nxL = A[3];
+int nyL = A[4];
+int nxR = B[3];
+int nyR = B[4];
+#endif
+#if defined(TEXTURE) || defined(UNIVERSAL)
+int uL = A[5];
+int vL = A[6];
+int uR = B[5];
+int vR = B[6];
+#endif
+#if defined(VERTEXCOLOR) || defined(UNIVERSAL)
+int rL = A[7];
+int gL = A[8];
+int bL = A[9];
+int rR = B[7];
+int gR = B[8];
+int bR = B[9];
+#endif
+
+int dxL = (C[0] - A[0]) / dy;
+int dzL = (C[2] - A[2]) / dy;
+int dxR = (D[0] - B[0]) / dy;
+int dzR = (D[2] - B[2]) / dy;
+
+#if defined(NORMALS) || defined(UNIVERSAL)
+int dnxL = (C[3] - A[3]) / dy;
+int dnyL = (C[4] - A[4]) / dy;
+int dnxR = (D[3] - B[3]) / dy;
+int dnyR = (D[4] - B[4]) / dy;
+#endif
+#if defined(TEXTURE) || defined(UNIVERSAL)
+int duL = (C[5] - A[5]) / dy;
+int dvL = (C[6] - A[6]) / dy;
+int duR = (D[5] - B[5]) / dy;
+int dvR = (D[6] - B[6]) / dy;
+#endif
+#if defined(VERTEXCOLOR) || defined(UNIVERSAL)
+int drL = (C[7] - A[7]) / dy;
+int dgL = (C[8] - A[8]) / dy;
+int dbL = (C[9] - A[9]) / dy;
+int drR = (D[7] - B[7]) / dy;
+int dgR = (D[8] - B[8]) / dy;
+int dbR = (D[9] - B[9]) / dy;
+#endif
+
+if (ymin < 0) {
+    xL -= dxL * ymin;
+    zL -= dzL * ymin;
+    xR -= dxR * ymin;
+    zR -= dzR * ymin;
+
+#if defined(NORMALS) || defined(UNIVERSAL)
+    nxL -= dnxL * ymin;
+    nyL -= dnyL * ymin;
+    nxR -= dnxR * ymin;
+    nyR -= dnyR * ymin;
+#endif
+#if defined(TEXTURE) || defined(FASTTEXTURE) || defined(UNIVERSAL)
+    uL -= duL * ymin;
+    vL -= dvL * ymin;
+    uR -= duR * ymin;
+    vR -= dvR * ymin;
+#endif
+#if defined(VERTEXCOLOR) || defined(UNIVERSAL)
+    rL -= drL * ymin;
+    gL -= dgL * ymin;
+    bL -= dbL * ymin;
+    rR -= drR * ymin;
+    gR -= dgR * ymin;
+    bR -= dbR * ymin;
+#endif
+    ymin = 0;
+}
+
+if(lh < ymax){
+    ymax = lh;
+}
+
+for (y = ymin ; y < ymax ; y++) {
+
+  ixL = RND_PIXEL(xL);
+  ixR = RND_PIXEL(xR);
+
+    dx = ixR - ixL;
+    z = zL;
+#if defined(NORMALS) || defined(UNIVERSAL)
+    nx = nxL;
+    ny = nyL;
+#endif
+#if defined(TEXTURE) || defined(UNIVERSAL)
+    u = uL;
+    v = vL;
+#endif
+#if defined(VERTEXCOLOR) || defined(UNIVERSAL)
+    r = rL;
+    g = gL;
+    b = bL;
+#endif
+
+    if (dx > 0) {
+	dz = (zR - zL) / dx;
+#if defined(NORMALS) || defined(UNIVERSAL)
+	dnx = (nxR - nxL) / dx;
+	dny = (nyR - nyL) / dx;
+#endif
+#if defined(TEXTURE) || defined(UNIVERSAL)
+	du = (uR - uL) / dx;
+	dv = (vR - vL) / dx;
+#endif
+#if defined(VERTEXCOLOR) || defined(UNIVERSAL)
+	dr = (rR - rL) / dx;
+	dg = (gR - gL) / dx;
+	db = (bR - bL) / dx;
+#endif
+    }
+
+    if (ixL < 0) {
+	z -= dz * ixL;
+#if defined(NORMALS) || defined(UNIVERSAL)
+	nx -= dnx * ixL;
+	ny -= dny * ixL;
+#endif
+#if defined(TEXTURE) || defined(FASTTEXTURE) || defined(UNIVERSAL)
+	u -= du * ixL;
+	v -= dv * ixL;
+#endif
+#if defined(VERTEXCOLOR) || defined(UNIVERSAL)
+	r -= dr * ixL;
+	g -= dg * ixL;
+	b -= db * ixL;
+#endif
+	ixL = 0;
+    }
+
+    if(ixR > lw){
+	ixR = lw;
+    }
+
+    // index of first pixel on scanline
+    i = ixL + lw * y;
+
+    //for (ix = ixL ; ix < ixR ; ix++) {
+    for (; ixL < ixR ; ixL++) {
+      if(ZTEST){
+	SETPIXEL();
+      }
+
+      //System.out.println("dz " + dz);
+
+      /* Increment z and normals across scan line. */
+      z += dz;
+
+#if defined(NORMALS) || defined(UNIVERSAL)
+      nx += dnx;
+      ny += dny;
+#endif
+#if defined(TEXTURE) || defined(UNIVERSAL)
+      u += du;
+      v += dv;
+#endif
+#if defined(VERTEXCOLOR) || defined(UNIVERSAL)
+      r += dr;
+      g += dg;
+      b += db;
+#endif
+      i++;
+    }
+
+    /* Increment left and right edges and normals down triangle. */
+    xL += dxL;
+    zL += dzL;
+
+    xR += dxR;
+    zR += dzR;
+
+#if defined(NORMALS) || defined(UNIVERSAL)
+    nxL += dnxL;
+    nyL += dnyL;
+    nxR += dnxR;
+    nyR += dnyR;
+#endif
+#if defined(TEXTURE) || defined(UNIVERSAL)
+    uL += duL;
+    vL += dvL;
+    uR += duR;
+    vR += dvR;
+#endif
+#if defined(VERTEXCOLOR) || defined(UNIVERSAL)
+    rL += drL;
+    gL += dgL;
+    bL += dbL;
+    rR += drR;
+    gR += dgR;
+    bR += dbR;
+#endif
+}
