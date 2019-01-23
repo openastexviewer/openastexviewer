@@ -1,0 +1,142 @@
+<!--#set var="TITLE" value="Applet demo" -->
+<!--#include file="header.inc" -->
+
+<table border=1 cellspacing=1>
+<tr>
+<td width=640 height="<!--#echo var="APPLET_HEIGHT" -->"><applet
+	width="100%" height="100%" name="av"
+	code="MoleculeViewerApplet.class"
+	archive="<!--#echo var="APPLET_JAR" -->">
+      <param name="scriptFile" value="applet/621p.script">
+      <param name="script" value="view -wuantialias true;">
+</applet></td><td valign=top>
+<table border=0>
+<tr>
+<td align=right><input type=checkbox checked onclick='js_atoms(this)'></td>
+<td>Atoms</td>
+</tr>
+<tr>
+<tr>
+<td align=right><input type=checkbox checked onclick='js_solvent(this)'></td>
+<td>Solvent</td>
+</tr>
+<tr>
+<td align=right><input type=checkbox onclick='js_spheres(this)'></td>
+<td>Spheres</td>
+</tr>
+<tr>
+<td align=right><input type=checkbox onclick='js_surface(this)'></td>
+<td>Surface</td>
+</tr>
+<tr>
+<td></td>
+<td align=right>
+<select onchange='js_colour(this)' style='{width:90px}'>
+<option value=white selected>Colour...
+<option value=white>White
+<option value=red>Red
+<option value=green>Green
+<option value=blue>Blue
+<option value=orange>Orange
+<option value=cyan>Cyan
+<option value=magenta>Magenta
+<option value=brown>Brown
+<option value=yellow>Yellow
+<option value=purple>Purple
+</select>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td align=right>
+<select onchange='js_transparency(this)' style='{width:90px}'>
+<option value=100 selected>Opacity...
+<option value=100>100%
+<option value=90>90%
+<option value=80>80%
+<option value=70>70%
+<option value=60>60%
+<option value=50>50%
+<option value=40>40%
+<option value=30>30%
+<option value=20>20%
+<option value=10>10%
+<option value=0>0%
+</select></td>
+</tr>
+<tr>
+<td></td>
+<td align=right>
+<select onchange='js_texture(this)' style='{width:90px}'>
+<option value='off' selected>Texture...
+<option value='images/textures/red2blue.jpg'>Rainbow
+<option value='images/textures/rainbow_pastel.jpg'>Pale
+<option value='images/textures/rwb.jpg'>Red2Blue
+<option value='images/textures/blue2brown.jpg'>Blue2Brown
+<option value='images/textures/blue2green.jpg'>Blue2Green
+</select></td>
+</tr>
+<tr>
+<td align=right><input type=checkbox onclick='js_schematic(this)'></td>
+<td>Schematic</td>
+</tr>
+<tr><td colspan=2><hr></td></tr>
+<tr>
+<td colspan=2>Background</td>
+</tr>
+<tr>
+<td></td>
+<td align=right>
+<select onchange='js_background(this)' style='{width:90px}'>
+<option value=white>White
+<option value='0x444444' selected>Grey
+<option value=black>Black
+</select></td>
+</tr>
+<tr>
+<td align=right>
+<input type=checkbox onclick='js_shadows(this)'>
+</td>
+<td>Shadows</td>
+</tr>
+<tr>
+<td align=right>
+<input type=checkbox onclick='js_antialias(this)'>
+</td>
+<td>Antialias</td>
+</tr>
+<tr>
+<tr><td colspan=2>
+<hr>
+<table cellpadding=2>
+<tr>
+<td><font size=-2>LeftMouse</font></td>
+<td><font size=-2>Rotate</font></td>
+</tr>
+<tr>
+<td><font size=-2>Shift+Left</font></td>
+<td><font size=-2>Scale</font></td>
+</tr>
+<tr>
+<td><font size=-2>Ctrl+Left</font></td>
+<td><font size=-2>Translate</font></td>
+</tr>
+<tr>
+<td><font size=-2>Click</font></td>
+<td><font size=-2>Select</font></td>
+</tr>
+<tr>
+<td align=right><font size=-2>+,&minus;</font></td>
+<td><font size=-2>Clipping</font></td>
+</tr>
+<tr>
+<td align=right><font size=-2>r</font></td>
+<td><font size=-2>Reset view</font></td>
+</tr>
+</table>
+</table>
+</td>
+</tr>
+</table>
+<!--#include file="footer.inc" -->

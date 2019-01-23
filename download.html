@@ -1,0 +1,62 @@
+<!--#set var="TITLE" value="Download OpenAstexViewer" -->
+<!--#include file="header.inc" -->
+
+OpenAstexViewer is distributed in Open Source form under the terms of the <a class=vis href=www.gnu.org/licenses/lgpl.html>LGPL</a>
+license. Briefly, this means that you may distribute OpenAstexViewer as part of
+other applications. You must display a copyright notice that indicates that
+OpenAstexViewer is included in your application.
+
+<p>Downloading the OpenAstexViewer source code indicates that you agree with the
+terms and conditions set forth in the license. While the source code has been
+made available under the terms of an Open Source license agreement, the
+copyright and ownership of the intellectual property contained
+therein, remains with Astex Therapeutics Limited.
+
+<p>This document gives instructions for downloading OpenAstexViewer as a jar file and in source
+code form. OpenAstexViewer is available for download in the formats shown in the table below.
+
+
+<!--#if expr="$QUERY_STRING = /ACCEPT_TCS=[oO][Nn]/" -->
+
+<p>
+<center>
+<table cellspacing=0 cellpadding=3 border=1>
+<tr><th>Distribution</th><th>Size (bytes)</th><th>Modified</th><th>Download</th></tr>
+<tr>
+<td>Precompiled jar file</td>
+<td align=right><!--#config sizefmt="bytes" --><!--#fsize file="OpenAstexViewer.jar" --></td>
+<td><!--#config timefmt="%Y-%m-%d" --><!--#flastmod file="OpenAstexViewer.jar" --></td>
+<td align=center><a href=OpenAstexViewer.jar><img src=save.gif></a></td>
+</tr>
+<!--
+<tr>
+<td>Precompiled jar file<br>Shrunk with <a target=_blank href=http://proguard.sourceforge.net/>Proguard 4.1</a></td>
+<td align=right><!--#config sizefmt="bytes" --><!--#fsize file="OpenAstexViewerObf.jar" --></td>
+<td><!--#config timefmt="%Y-%m-%d" --><!--#flastmod file="OpenAstexViewerObf.jar" --></td>
+<td align=center><a href=OpenAstexViewerObf.jar><img src=save.gif></a></td>
+</tr>
+-->
+<tr>
+<td>Source bundle</td>
+<td align=right><!--#config sizefmt="bytes" --><!--#fsize file="OpenAstexViewerSrc.zip" --></td>
+<td><!--#config timefmt="%Y-%m-%d" --><!--#flastmod file="OpenAstexViewerSrc.zip" --></td>
+<td align=center><a href=OpenAstexViewerSrc.zip><img src=save.gif></a></td>
+</tr>
+</table>
+</center>
+<!--#else -->
+
+<p>To download OpenAstexViewer you must agree to the terms and conditions set forth in the license. Check the button below to indicate your
+acceptance of these terms and conditions.
+
+<center>
+<form>
+<input type=checkbox name=ACCEPT_TCS>I agree to the <a class=vis href=license.html target=_blank>terms and conditions</a>.
+<input type=submit value='Download'>
+</form>
+</center>
+
+
+<!--#endif -->
+
+<!--#include file="footer.inc" -->

@@ -1,0 +1,1091 @@
+<!--#set var="TITLE" value="OpenAstexViewer user interface" -->
+<!--#include file="header.inc" -->
+
+<h3>Mouse and Keyboard Controls</h3>
+
+The view of the molecule that is loaded can be controlled using the
+mouse. The interface is similar (but not identical to) a number of
+other molecular graphics programs. In general only the left mouse
+button is used for controlling the view, as the right mouse button is
+reserved for bringing up the popup menu when OpenAstexViewer is running as
+an applet.
+
+<p><table cellpadding=5 border=1 cellspacing=0>
+<tr>
+<td>
+LeftMouse+Drag
+</td>
+<td>
+Rotate the view of the molecule around the current centre point.
+This uses a straight forward 'virtual trackball' interface.
+Dragging near the top of the screen will cause a rotation around
+the <i>z</i>-axis.
+</td>
+</tr>
+<tr>
+<td>
+Shift+LeftMouse+Drag
+</td>
+<td>
+Scale the view of the molecule.
+</td>
+</tr>
+<tr>
+<td>
+Ctrl+LeftMouse+Drag
+</td>
+<td>
+Translate the centre of the view in the <i>x</i>,<i>y</i> plane.
+</td>
+</tr>
+<tr>
+<td>
+Click on atom
+</td>
+<td>
+Add that atom to the selection. If it is already selected, it is made unselected.
+When you click on an atom it is labelled and more info about it is displayed
+in the bottom left hand corner of the screen. Currently only one atom is labelled
+at a time.
+</td>
+</tr>
+<tr>
+<td>
+Click on background
+</td>
+<td>
+Clear the current atom selection
+</td>
+</tr>
+<tr>
+<td>
+'+' key
+</td>
+<td>
+Widen the clipping planes slightly, making more of the molecule available.
+[Note, this command is actually bound to '=' to avoid the user having to
+press Shift on a conventional keyboard].
+</td>
+</tr>
+<tr>
+<td>
+'&minus;' key
+</td>
+<td>
+Narrow the clipping planes slightly, making less of the molecule available.
+</td>
+</tr>
+<tr>
+<td>
+'c' key
+</td>
+<td>
+Centre on the currently selected atoms i.e. to centre on a particular atom
+select it and then press 'c'.
+</td>
+</tr>
+<tr>
+<td>
+'r' key
+</td>
+<td>
+Reset the view back to the identity matrix, and recentre on all
+non-solvent atoms.
+</td>
+</tr>
+<tr>
+<td>
+'d' key
+</td>
+<td>
+If exactly two atoms are selected, the a distance monitor is added
+between the two atoms. This is a shortcut that avoid activating
+distance monitors from the menus (described later).
+</td>
+</tr>
+<tr>
+<td>
+Ctrk + 'r' key
+</td>
+<td>
+Select all the atoms in any residues that contain selected atoms.
+This is useful for centreing on a ligand. You pick an atom in it,
+press Ctrl+r (which selects all of its atoms) and then press 'c' to
+centre on those atoms.
+</td>
+</tr>
+</table>
+
+<h3>Using the OpenAstexViewer Graphical User Interface</h3>
+
+OpenAstexViewer version 2 has a more powerful graphical interface than the
+first version, which was principally intended for use as a
+preconfigured Applet running in a web page. The graphical user
+interface allows <i>most</i> operations to be carried out without the
+need for writing scripting language. This document provides a quick
+tour of the user interface, and then a few step-by-step guides for
+carrying out common operations.
+
+<h3>Tour of the Menus</h3>
+
+This section covers the menu bar at the top of the application.
+One of the options in the menu produces a control which has many
+more options and is covered later in the document.
+
+<dl>
+
+<dt>File
+
+<dd>This menu controls the loading and saving of molecules, maps
+and images.
+
+<dl>
+
+<dt>Open structure...
+
+<dd>This option provides a file dialog that lets you choose a molecule
+to load into OpenAstexViewer. Due to a limitation in the early versions of
+Java, the file choice is not restricted to valid molecule types.  All
+files and directories are presented and you have to choose the
+<code>PDB</code> or <code>mol</code> file that you wish to load.
+
+<dt>Open map...
+
+<dd>This option provides a file dialog that lets you choose an
+electron density map to load into OpenAstexViewer. The same java feature
+means that all files are displayed in the file dialog. You may choose
+to load a CCP4 electron density map (with extension <code>.map</code>)
+or an Insight ASCII grid file.
+
+<dt>Open object...
+
+<dd>Load an OpenAstexViewer <code>tmesh</code> graphical object from
+a file.
+
+<dt>Run script...
+
+<dd>Run an OpenAstexViewer script. These should end with file extension
+<code>.script</code>. The scripts can carry out arbitrary sets of
+commands. As a convenience for developing scripts, the last script
+that was executed by "Run script..." can be re-executed by clicking in
+the graphics window and hitting the '!' key (reminiscent of the Unix
+'!!' feature which reruns the last command).
+
+<dt>Save molecule
+
+<dd>Pick a molecule from the pop up menu and save it.  You can give it
+a different name, and change its type by providing a different
+extension. [<em>Note, the file is saved in whatever file name you
+type, no extension is added by default</em>]. If you overwrite the
+file <code>file.pdb</code> the previous copy of the file will be
+renamed <code>file.pdb_00</code> (and so on) so that you still have a
+record of the old file.
+
+<dt>Save view...
+
+<dd>This option lets you write a script file that will recreate the
+scene as you have it now. This includes display styles, colors,
+graphical objects etc. It does this by writing a log of all the
+scripting commands since the session began. It should be possible to
+recreate a particular scene in OpenAstexViewer by either passing the
+script on the command line, or loading it via the 'Run script...'
+option. [<em>Note, the absolute path of filenames are written into the
+file, which means that you cannot move the original file without
+editing the script to reflect the change. This is undesirable, and a
+later version will attempt to fix this by making the paths relative to
+where OpenAstexViewer is started</em>].
+
+<dt>Save all
+
+<dd>This will overwrite all currently loaded molecules with their
+current coordinates. Backup versions of the files will be created as
+necessary.
+
+<dt>Close
+
+<dd>This lets you close a molecule and remove it from OpenAstexViewer.
+Any graphical objects that were derived from it will not disappear.
+
+<dt>Write BMP...
+
+<dd>This lets you save an image of the current view. Only windows
+bitmap files are supported, to maintain compatibility with Java
+version 1. It is possible that a future version will try and determine
+if the application is running with a newer version of Java which has
+support for different image formats. If the file name that is selected
+ends with '<code>.gz</code>' then the file will be written through a
+gzip compressor, which makes typical files about of the uncompressed
+size.
+
+<p>The menu choices let you choose the size of the image that you want
+to save. The '<code>Current size x?</code>' options will preserve the
+aspect ratio properly. The other sizes just allow for the easy
+rendering of images that are larger than the window. It should be
+noted that all of the standard options perform 2x2 supersampling to
+provide some tantalising. On a PC with 256Mb of RAM you may not be
+able to write images that are much more than 2000x1500 pixels
+(4000x3000 before sampling). Rendering time is affected by size of
+image, image complexity, shadows etc.. You should not have
+antialiasing turned on in the image as this will cause an additional
+oversampling of the image.
+
+<dt>Exit
+
+<dd>Close the application. [<em>Note, you are not prompted to save
+any molecules that have been changed. This is a bug, and will be
+fixed in the near future</em>].
+
+</dl>
+
+<dt>Select
+
+<dd>The Select menu is almost obsolete apart from the options to bring
+up the Control Panel (described later) and the ability to quickly
+select ligands in the structure.
+
+<dl>
+
+<dt>Popup...
+
+<dd>Bring up the main control panel. This should appear at the right hand
+edge of the main graphics window. The controls are described in a separate
+section later in this document.
+
+<dt>Clear
+
+<dd>This option unselects all atoms that are currently selected
+(marked by a yellow dot). The same effect can be archived by clicking
+on the background of the graphics window.
+
+<dt>Ligands
+
+<dd>This will select all atoms that aren't part of the standard makeup
+of a protein structure (its as if the command '<code>select not
+(aminoacid or DNA or ions or solvent)</code>' had been executed).
+
+<dt>Ligand
+
+<dd>This menu provides separate entries for each non-standard residue
+that appears to be a ligand. Its a useful way of selecting ligands, so
+that you can see them and centre on them using '<code>View > Center on
+Selection</code>'.
+
+</dl>
+
+<dt>Display
+
+<dd>This menu controls the overall display of various entities within
+OpenAstexViewer. There are more sophisticated ways of achieving most of
+these actions in the control panel, but these are left here as they
+are occasionally useful as a shortcut.
+
+<dl>
+
+<dt>Maps
+
+<dd>Turn on or off the display of all maps. If maps are displayed then
+their contour levels can be controlled in the dialog obtained through
+'<code>View > Contour Levels</code>'. When maps are turned off all
+contour levels are hidden.
+
+<dt>Symmetry
+
+<dd>Control whether or not symmetry atoms are generated when you
+recenter OpenAstexViewer. Their is a global spacegroup and unit cell which
+is determined from the first molecule that has symmetry defined.  If
+CCP4 electron density maps are loaded then the symmetry information is
+taken from the first of these in preference.
+
+<dt>Bumps
+
+<dd>If bumps are selected then distance monitors are drawn between
+selected atoms and any neighbours that are closer than the sum of
+their vdW radii. The monitors are updated as you click on different
+atoms.
+
+<dt>Solvent
+
+<dd>Turn off atoms that are in standard PDB solvent residues.
+
+</dl>
+
+<dt>Color
+
+<dd>This menu changes the coloring of sets of atoms and the
+background of the main graphics window. All coloring options
+apply to the <code>default</code> selection. This is the
+currently selected atoms, or all atoms if nothing is selected.
+
+<dl>
+
+<dt>By Atom
+
+<dd>Change the colors of atoms back to the OpenAstexViewer defaults.
+Carbons are green (there is no way to change this default color -
+sorry all you people who like gray carbons), oxygens are red,
+nitrogens are blue, sulphurs are yellow, phosphorii are magenta,
+halogens are a variety of other colors.
+
+<dt>By Chain
+
+<dd>Colors each chain from a selection of different colors. <a
+href=scripting.html#coloring><u>See</u></a> the scripting language
+documentation for the precise color details.
+
+<dt>By B-factor
+
+<dd>Colors each atom according to its b-value. <a
+href=scripting.html#coloring><u>See</u></a> the scripting language
+documentation for the precise color details.
+
+<dt>By B-factor Range
+
+<dd>Colors each atom according to its b-value. The color scale covers
+the range from minimum to maximum b-value, rather than the predefined
+range used in the previous menu option. <a
+href=scripting.html#coloring><u>See</u></a> the scripting language
+documentation for the precise color details.
+
+<dt>Change to
+
+<dd>Colors each atom with the color that was selected from the sub
+menu.
+
+<dt>Background
+
+<dd>Changes the background color to that chosen. The graphics are
+fogged to this color as well. To lessen the fogging effect you must
+move the back clipping further away. This can be done either with the
+'-' key or with the clipping plane tool in the control panel.
+
+</dl>
+
+<dt>View
+
+<dd>These command control certain aspects of the overall view
+of the graphics window.
+
+<dl>
+
+<dt>Reset
+
+<dd>Resets the orientation matrix to the identity matrix, and scales
+the viewport so that all the non-solvent atoms are visible.
+
+<dt>Center On Selection
+
+<dd>Adjusts the center point, width of the view and the clipping
+planes so that the current selected atoms are visible.
+
+<dt>Clip Maps To Selection
+
+<dd>Clip any displayed electron density maps to the region around any
+selected atoms. This is useful for tidying up electron density maps
+that are a little noisy.
+
+<dt>Wide Bonds For Selection
+
+<dd>Change the display style for the selected atoms to wide lines.
+This makes it easier to see the selected atoms. There are much more
+sophisticated display styles available in the control panel.
+
+<dt>Contour Level Dialog...
+
+<dd>Pops up a set of controls that let you change the contour levels
+for any maps that are loaded. Clicking the checkbox next to each
+contour level turns that contour level on or off.  Clicking the label
+that displays the current contour level, will popup a color chooser
+that lets you change the color of the contour level. The slider lets
+the actual contour level value be changed.
+
+</dl>
+
+<dt>Measure
+
+<dd>Change the picking mode so that measurements can be made
+between sets of atoms. By default nothing is being measured,
+and picked atoms just get selected and labelled.
+
+<dl>
+
+<dt>Distances
+
+<dd>Each pair of atoms that is picked is joined by a distance monitor
+that shows the distance between those atoms. An alternative
+way to put distances in the view is to select exactly two atoms,
+and then press the 'd' key. This will create a distance monitor
+between the two atoms.
+
+<dt>Angles
+
+<dd>Each set of three atoms that is picked will get an angle monitor
+which displays the angle between the three atoms in degrees.
+
+<dt>Torsions
+
+<dd>Each set of four atoms that is picked will get a monitor which
+displays the torsion angle defined by the four atoms, in degrees.
+
+<dt>Clear Distances
+
+<dd>Clears all the distance monitors that are currently displayed.
+
+<dt>Clear Angles
+
+<dd>Clears all the angle monitors that are currently displayed.
+
+<dt>Clear Torsions
+
+<dd>Clears all the torsion angle monitors that are currently displayed.
+
+</dl>
+
+</dl>
+
+<h3 class="break">Tour of the Control Panel</h3>
+
+<h4>Select Tab</h4>
+
+The main part of the graphical user interface is within the control
+panel. As described above, this is activated by choosing
+<code>Popup...</code> from the Select menu. The menu bar is at the top
+of the graphics window if OpenAstexViewer is running as an application or
+is available on a popup menu if running as an applet.
+
+<p>This section will talk through the control panel using the PDB
+structure <code>621p</code> as an example. To load the structure
+you can either specify it as an argument to a command line script e.g.
+
+<pre>
+OpenAstexViewer.bat r:\621p.pdb
+</pre>
+
+or open it by <code>File > Open Structure...</code> from the menu bar.
+When you have loaded the structure get the control panel with
+<code>Select > Popup...</code>. At this stage the control panel should look
+something like the image below left.
+
+<p>
+
+<center>
+<table width=640 border=0>
+<tr>
+<td><img width=320 src="images/control_panel.gif"> </td>
+<td><img width=320 src="images/structure_browser.gif"> </td>
+</tr>
+</table>
+</center>
+
+<p>The control panel has a number of tabs that allow the selection of
+sets of atoms, customisation of their display styles and the generation
+and modification of graphical objects.
+
+<p>The <code>Select</code> tab lets you choose sets of atoms, and
+apply display styles to them. The top half of the <code>Select</code>
+tab contains two sections that will select sets of atoms. Clicking on
+the <img src="images/plus.gif"> symbol will expand the structure to
+show the protein chains that it contains. Chains whose identifier is
+the space character are labelled with an '_'. These can be expanded
+further to show the residues, and these can be expanded to show the
+atoms that the residue contains. The image above right shows what this
+would look like after expanding down to the N-terminal methionine in
+<code>621p</code>.
+
+<p>Clicking on the name part of the structure browser
+(e.g. <code>r:\621p.pdb</code> or <code>Chain _</code>) will change
+the selection status of those atoms in the graphical display. The
+action is controlled by the three buttons at the top of the
+tab. If this is set to <code>Select</code> then all atoms in the item
+that is picked will be selected (i.e. a yellow dot will be drawn on
+them).  If the mode is set to <code>Append</code> then the picked
+items atoms will be selected in addition to any atoms that are already
+selected (this lets you easily build up composite groups of atoms). If
+the mode is set to <code>Exclude</code> then the picked items atoms
+will be unselected, but all other atoms will be left alone.
+
+<p>To the right of the structure browser is another similar object,
+which is labelled <code>Builtins</code>. This contains sets of useful
+predefined selection statements that can be applied to many different
+structures. For instance, the <code>Atoms</code> group lets you select
+atoms according to their element. The <code>Residues</code> group
+contains all the common aminoacid residue names. <code>Sphere</code>
+lets you select groups of atoms that are within a certain distance of
+the currently selected atoms. <code>Contact</code> lets you select
+atoms whose sum of vdW radii are within a certain distance of one
+another.
+
+<p>The other groups let you select other useful subsets of
+atoms.  The <code>Whole residue</code> feature will select all atoms
+in any residue that has at least one atom selected. The <code>Whole
+molecule</code> feature will select all atoms in a connected section
+that have at least one atom selected. The feature that is picked is
+affected by the selection mode at the top of the tab in the same way
+as picking atoms in the structure browser.
+
+<p>Sets of atoms can be picked from the graphical display as well.
+For instance, you might want to select the atoms in a ligand that you
+can see in the display. One way to do this would be to select a single
+atom in the display and then click on <code>Whole Residue</code> in
+the <code>Builtins</code> list. This should select the whole ligand
+residue (if it is all in one residue like in <code>621p.pdb</code>).
+
+<p>Once you have built up a selection of atoms the controls in the
+<code>Display as</code> section can be used to change the display
+styles for the those atoms. The available display styles for atoms are
+Lines, Cylinders, Sticks and Spheres. Clicking the <img
+src="images/display_plus.gif"> button next to a display style will
+turn that display style on for the selected atoms. Clicking the <img
+src="images/display_minus.gif"> button next to a display style will turn that
+display style off for the selected atoms. The controls to the right of
+each display style will change the radii for the selected atoms.
+
+<p>Selected atoms can be lablleled using the label control. The
+menu provides a selection of useful labelling formats for the
+atoms. See the <a href="scripting.html#labels">scripting</a>
+language documentation for the meaning of the format expressions.
+
+<p>The final section at the bottom of the control panel is labelled
+<code>View controls</code>. This is visible in all tabs of the control
+panel. Hitting the <code>Centre</code> button will centre the view on
+the currently selected atoms. This does not change the rotation
+matrix. If no atoms are selected then the graphics display centres on
+all atoms.  The <code>Reset</code> button will reset the view to
+centre on all non-solvent atoms, and will reset the rotation matrix to
+the identity matrix. The sliders labelled <code>Front</code> and <code>Back</code>
+let you adjust the position of the clipping planes. The numbers are distances
+in front and behind the centre point in &Aring;'s.
+
+<p>The final three buttons in this section control various graphical
+attributes.  The <code>Fog</code> button should rarely be used as most
+objects will automatically depthcue/fog themselves into the background
+color (there is no way to stop this at the moment, but the degree of
+fog can be reduced by moving the <code>Back</code> clipping plane
+further back). The <code>AA</code> button will apply 2x2 supersampled
+antialiasing to the graphics display. The <code>Shadows</code> button
+will turn on simple shadow casting for the scene. This can be left on
+if desired but will considerably slow down rendering times
+(particularly if used in conjunction with the <code>AA</code> button).
+
+<h4>Display Styles and Renderer Settings</h4>
+
+This section shows some images that can be easily made for the ligand
+in <code>621p.pdb</code>. With the structure loaded centre on the
+bound ligand. You can do this by picking an atom in it (the phosphate
+groups are quite obvious) and choosing the <code>Whole residue</code>
+feature from the <code>Builtins</code> table. Alternatively, expand
+the structure browser down to <code>Chain _</code> and scroll through
+the list of residues to <code>167</code>. Selecting this should
+highlight the ligand. You can now press the centre button to centre on
+the ligand. You will notice some gray lines near the ligand. This is
+automatically generated symmetry environment, you should probably turn
+this off by unchecking <code>Display > Symmetry</code> on the main
+graphics window menu.
+
+<p>
+<center>
+<table width=640 border=1 cellspacing=0 cellpadding=0>
+<tr>
+<td><img height=240 width=320 src="images/display_lines.png"></td>
+<td><img height=240 width=320 src="images/display_cylinders.png"></td>
+</tr>
+<tr>
+<td width=50%>Standard line display. Lines are drawn in width 2 for visibility.</td>
+<td width=50%>Cylinder display. Note, cylinders are drawn
+analytically, not made of triangles.</td>
+</tr>
+<tr>
+<td><img height=240 width=320 src="images/display_sticks.png"></td>
+<td><img height=240 width=320 src="images/display_spheres.png"></td>
+</tr>
+<tr>
+<td width=50%>Sticks display. Lines are drawn in width 2 for visibility.</td>
+<td width=50%>Sphere display. Note, spheres are drawn as high quality
+bitmaps, not made of triangles.</td>
+</tr>
+</table>
+</center>
+
+<h4>Some Examples</h4>
+
+This section gives step by step instructions for generating some more
+complicated images.
+
+<p>
+
+<center>
+<table width=640>
+<tr>
+<td>
+<a href="images/bfactor640x480.png">
+<img height=240 width=320 src="images/bfactor.png">
+</a>
+</td>
+<td valign=top width=50%>
+<ol>
+<li>Select <code>Aminoacid</code> from the builtins
+<li>Choose <code>Color by B-factor</code> from the main color menu
+<li>Choose <code>Spheres+</code>
+<li>Select <code>Solvent</code> from the builtins
+<li>Choose <code>Lines-</code>
+<li>Select <code>Residue 167</code>
+<li>Choose <code>Cylinders+</code>
+<li>Check <code>Shadows</code> on
+</td>
+</tr>
+<tr>
+<td>
+Protein displayed as spheres, colored by B-factor.
+Ligand displayed as cylinders, drawn with shadows.
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<a href="images/ligand640x480.png">
+<img height=240 width=320 src="images/ligand.png">
+</a>
+</td>
+<td valign=top width=50%>
+<ol>
+<li>Centre on ligand as before
+<li>Select <code>Atoms > Carbon</code> from the builtins
+<li>Change <code>Color</code> to grey
+<li>Select <code>Residue 167</code>
+<li>Choose <code>Spheres+</code>
+<li>Choose <code>Lines-</code>
+<li>Choose <code>Transp 160</code>
+<li>Select <code>Contact 0.5</code> from the builtins
+<li>Choose <code>Cylinders+</code>
+<li>Select <code>r:\621p.pdb</code>
+<li>Choose <code>Lines-</code>
+<li>Check <code>Shadows</code> on
+</td>
+</tr>
+<tr>
+<td>
+Carbons colored grey.  Protein within 0.5&Aring; contact distance of
+ligand displayed as cylinders.  Ligand displayed as transparent
+spheres, all with shadows.
+</td>
+<td>
+</td>
+</tr>
+</table>
+</center>
+
+<h3 class="break">Generate Tab</h3>
+
+This tab contains controls for generating graphical objects. Graphical
+objects are constructed from atom positions, but after this are
+independent of them. For instance, they won't be turned off if the
+atoms that were used to generate them are turned off.
+
+<p>There are two principal types of graphical objects in OpenAstexViewer.
+These are molecular surfaces and protein cartoons (schematics). The
+controls for creating both of these types of objects are described
+in this section.
+
+<h4>Molecular Surfaces</h4>
+
+<table width=640 align=center>
+<tr>
+<td><img src="images/generate.gif"></td>
+
+<td valign=top>
+Molecular surfaces are created for the atoms that are selected in the
+graphics display. The surface algorithm is grid based and produces a
+triangulated surface. If you want to have more than one surface at the
+same time, you need to change the name of the surface in the
+<code>Name:</code> box.
+
+<p>The quality setting currently has no effect for molecular
+surfaces. They are always generated at the best resolution that can be
+made within certain limits of grid spacing and memory usage.
+
+<p>The <code>Probe:</code> control lets you specify the probe
+radius that is used for the molecular surface generation. The
+default is 1.5&Aring; but some people prefer to use 1.4&Aring;.
+
+<p>When you have the settings you want, press the build button and
+after a few seconds the molecular surface should appear.  If it isn't
+quite what you wanted, modify the atom selection or the probe radius
+and regenerate the surface. As the surface name is the same as before
+it will overwrite the previous surface.
+
+<p>The surface is generated in white by default. The properties of the
+surface can be modified extensively using controls which are described
+in the Modify tab. These will be covered in detail in the next
+section.
+
+</td>
+
+</tr>
+
+</table>
+
+<h4>Example Molecular Surfaces</h4>
+
+<table width=640 align=center>
+<tr>
+<td><a href="images/protein_surface640x480.png">
+	 <img width=320 src="images/protein_surface.png"></a></td>
+<td><a href="images/ligand_surface640x480.png">
+	      <img width=320 src="images/ligand_surface.png"></a></td>
+</tr>
+</table>
+
+<h4>Protein Cartoons</h4>
+
+The main body of controls on the Generate tab is concerned with the
+production of protein cartoons (or schematics as they are sometimes
+known). OpenAstexViewer supports most of the common styles for schematic
+display.
+
+<p>The schematic generation acts on the currently selected atoms by
+default, or if nothing is selected it will work on all aminoacid
+residues in the currently loaded structures.  The <code>Name:</code>
+box lets you specify the name of the graphical object that will be
+created. If you want more than one schematic object you must give them
+different names.
+
+<p>The <code>Quality:</code> spinbox lets you specify the overall
+quality of the schematic that is generated. It controls how many guide
+points are placed along the spline path, and the number of points
+around the perimeter of elliptical segments. Quality 1 has the least
+triangles and draws fastest. Higher numbers produce more triangles and
+somewhat better pictures.
+
+<p>The grid of controls beneath here control the shape and dimensions
+of the various different parts that are used to make up a protein
+schematic. Helices are drawn with a ribbon that follows the path of
+the C&alpha; atoms. &beta;-strands are drawn as arrows with an arrow
+head that shows the direction of the polypeptide chain. Other regions
+(coil) are drawn as a smoothed narrow tube that passes near the
+C&alpha; coordinates.
+
+<p>The <code>Oval</code> checkbox determines whether or not helical
+ribbons are drawn as oval cross section ribbons. The
+<code>cylinders</code> checkbox controls whether or not cylinders are
+placed along the edge of a helical ribbon (this is not done if the
+ribbons are drawn with oval cross section). The cylinders look nice,
+but cannot be drawn transparently. If you think you want to make a
+schematic transparent then you should probably not use the cylinders
+option.
+
+<p>The <code>Tube</code> checkbox controls whether the schematic is drawn
+as all tube. These can be used for creating a solid C&alpha; trace
+that looks as if it has been constructed from bent wire. You
+will probably want to adjust tube smoothing to 0 to ensure that the
+tube passes through the C&alpha; positions.
+
+<p>The colors of the triangles that make up the protein schematic are
+taken from the C&alpha; atoms at the time the schematic is created.  A
+popular way of showing schematics is as a rainbow from blue at the
+N-terminus to red at the C-terminus. This shows the progression of the
+polypeptide chain. To achieve this, color the protein atoms by rainbow
+before generating the schematic.
+
+<p>The table below shows some of the protein schematics that can be
+generated for <code>621p.pdb</code>. They also show the effects of
+varying some of the parameters, for each of the different secondary
+structure features.
+
+<p>
+
+<table width=640 align=center>
+<tr>
+<td><a href="images/schematic_basic640x480.png">
+	      <img src="images/schematic_basic.png"></a></td>
+<td><a href="images/schematic_fancy_white640x480.png">
+	      <img src="images/schematic_fancy_white.png"></a></td>
+</tr>
+</table>
+
+<h3>Labels and Distances</h3>
+
+The two final groups of controls in the generate tab allow you
+to specify sets of labels and distances for the structures.
+
+<p>The label controls will apply labelling to the currently selected
+atoms. You can control the string that they are labelled with bu
+choosing the an entry from the Value drop down menu. If you choose
+<code>clear</code> the labels are cleared for the selected atoms. The
+<a href="scripting.html#labels">format</a> codes are described in the
+scripting language documentation. You can put ordinary text in the
+label box as well. Characters preceeded by a \ will be drawn in
+Symbol font. The justify box lets you specify which part of the string
+will be used to justify the text. The XYZ buttons let you specify
+offsets on the screen after the text is transformed.
+
+<p>The <code>3d</code> checkbox lets you choose whether or not you use
+a 3d font (which is constructed of cylinders). The button next to the
+<code>Apply</code> button will let you change the color of the labels.
+
+<p>There is currently no way to set the controls according to the
+current label style of a set of atoms. If you have labels with
+different settings you will need to recreate all the values for each
+set.
+
+<p>The distance controls let you specify sets of distances on the
+structure. <i>The distance controls use sets of atoms that have been
+placed on the selection stack. To push a set of atoms onto the stack,
+you select what you want and then hit the <code>Insert</code> key on
+the keyboard. This will unselect the atoms. You can then push a second
+set of atoms onto the stack. The last set can be retrieved by hitting
+the <code>Delete</code> key. This pops the stack. Keep hitting
+<code>Delete</code> to clear the stack completely</i>.
+
+<p>There are four different distance modes available on the top left menu
+of the distance controls.
+
+<dl>
+
+<dt>Pairs
+
+<dd>This variant uses two sets of atoms from the stack. It will
+generate a distance label between all pairs of atoms from set one and
+set two.  The label is only added if the distance between the atoms is
+less than the value in Dmax and the distance minus the sum of the vdW
+radii is less than the value in Contact.
+
+<dt>Nbpairs
+
+<dd>This is similar Pairs except that the additional constraint that
+the atoms must be separated by at least 3 bonds is used.
+
+<dt>Bumps
+
+<dd>This mode uses only the top set of atoms from the atom stack.
+All pairs of atoms are considered for a distance monitor if they
+satisfy the Dmax, Contact and 3 bond rules.
+
+<dt>Centroid
+
+<dd>This mode uses two sets of atoms from the atom stack. The distance
+monitor is drawn between the cartesian center of the two sets of
+atoms.
+
+</dl>
+
+<p>The dash, gap and radius controls let you specify the size of the
+dashed lines that are used in the distance monitors. It should be
+noted that the dashes are drawn with a space of half the gap length at
+each end. The dash and gap values are adjusted slightly to achieve
+this effect. This stops large gaps appearing at one end or the other
+of the distance monitor.
+
+<p>The label controls how the monitor is labelled. The distance is
+substituted for any C language style floating point format.  For
+example, the distance 3.456 would be shown as 3.4 if format was %.1f or
+3.45 if format was %.2f.
+
+<p>The labels on the distance monitors are controlled by the current
+settings of the label controls. If you want to change how the label is
+formatted, change the label settings and then reapply the distances.
+
+<p>You can create multiple sets of distances by changing the name
+of the set. The only way to delete a set of distances is to clear the
+distance stack and recreate the distances.
+
+<center>
+<img src="images/distance.png">
+</center>
+
+<p>The image above shows a custom distance label in OpenAstexViewer.  It
+was created by selecting the atoms of the five membered guanine ring,
+and hitting the <code>Insert</code> key. Then the atom of the Phe ring
+was selected and the <code>Insert</code> key was pressed again. This
+means there are two sets of atoms on the selection stack.
+
+<p>Now, the settings for the font were changed to purple, 3d, size
+0.5, radius 0.05 justification top left, and the distance label was
+changed to %.1f. This should give rise to a distance monitor like that
+shown.
+
+<h3 class="break">Modifying Graphical Objects</h3>
+
+The third tab in the control panel lets you change the attributes of
+graphical objects. Each object that you have created will appear as a
+separate entry. In the scrollable area of the Modify tab.
+
+<p>
+
+<table width=640 align=center>
+<tr>
+<td><img src="images/modify.gif"></td>
+
+<td valign=top>
+
+This is how the Modify tab would look if you had generated a molecular
+surface and protein schematic with their default names. Each object
+has its own entry and a number of controls.
+
+<p>From left to right across each entry the controls have the following
+actions.
+
+<ol>
+
+<li>The button marked with an '<code>X</code>' will delete the
+graphical object.
+
+<li>The slider to the right of the delete button will
+vary the transparency of the object. Slider full to the right is
+completely opaque, with positions to the left being more transparent.
+
+<li>The black checkbox turns on the display of backfacing triangles.
+Backfacing triangles (i.e. facing away from the viewer) are usually
+turned off as they cannot be seen, and this helps rendering
+performance. However, if you have clipped into a surface or similar
+object you may want to turn on backfacing triangles so that it doesn't
+appear that the back of the object is missing. When the box is black
+backfacing triangles are not displayed. When checked it goes white,
+indicating that backfacing triangles are displayed.
+
+<li>The multicolored button to the right of the backface triangle
+control will bring up a color chooser control that lets you change the
+color of the object.
+
+<li>The <code>Edit</code> button brings up another control that lets
+you change calculate properties and apply texture maps for more
+sophisticated coloring schemes.
+
+<li>The final checkbox controls the display of the object. When the
+box is checked the object is displayed.
+
+</ol>
+
+</td>
+</tr>
+</table>
+
+<h4 class="break">Editing Object Properties</h4>
+
+<img src="images/properties.gif" align=left vspace=0 hspace=10> The
+<code>Edit</code> button on the Modify tab will bring up a control
+that lets you generate properties for graphical objects as a function
+of atomic properties. These properties can be shown on graphical
+objects using texture mapping which is also controlled here.
+
+<p>The coordinate group lets you choose which texture coordinate you
+wish to calculate property values for. The <i>u</i> coordinate can be
+thought of as the <i>x</i> value of an index into an image, and the
+<i>v</i> coordinate as the <i>y</i> value of the index into an
+image. The <i>u,v</i> pairs are used to choose the color of the pixel
+according to the property value.
+
+<p>The properties section lets you choose which property to calculate
+for the texture coordinate. The properties are calculated using the
+atoms that are currently selected. The possibilities are
+
+<dl>
+
+<dt>Electrostatic
+
+<dd>Calculate a simple Coulomb electrostatic potential. The function
+uses a distance&sup2; dielectric constant. If the <code>Charge</code>
+checkbox is selected standard partial charges are applied to the
+aminoacid atoms prior to the electrostatic calculation. If you wish to
+supply your own charges these can be done with <code>charge</code>
+scripting commands, and you should uncheck the <code>Charge</code>
+box.
+
+<dt>Lipophilicity
+
+<dd>Calculate a simple lipophilic potential. The atom based
+contributions for aminoacids are automatically applied if the
+<code>Contributions</code> checkbox is selected. The contributions are
+stored in the <code>charge</code> attribute of atoms, so you can
+supply your own in a similar fashion to the electrostatic potential.
+
+<dt>Distance
+
+<dd>This will calculate the distance to the nearest selected atom and
+store that value at each point in the graphical object. The texture
+coordinates are normalised so that they become 1.0 at 8&Aring;. If you
+have generated <code>Distance</code> texture coordinates for <i>v</i>
+then any pixels that lie outside the range are not drawn. This lets
+you generate very accurately clipped molecular surfaces, based on
+proximity to sets of atoms.
+
+<dt>Curvature
+
+<dd>This property estimates the curvature of an object using a
+smoothed function of the number of atoms within 8&Aring; of the point
+on the graphical object. It is really only useful for molecular
+surfaces, and only makes sense when you generate the curvature using
+the same set of atoms that was used to generate the surface. It is a
+useful way of showing pockets in the binding site of a protein.
+
+<dt>Atom colors
+
+<dd>This function does not generate texture coordinates, but seems to
+make sense included in this part of the user interface.  The function
+will map the color of the nearest atoms onto the molecular
+surface. The colors are blended to achieve a pleasing effect for
+molecular surfaces.
+
+<dt>Clip
+
+<dd>This also does not generate texture coordinates. Instead, it clips
+the object at the <i>u</i> or <i>v</i> = 1 line (depending on which
+coordinate you have selected). This removes triangles and vertices
+that lie outside this region. It will also accurately interpolate
+texture coordinates along triangle edges, and split them into
+subtriangles, to recreate the boundary. This can significantly speed
+up the rendering of objects that have large amount of triangles
+removed through texture clipping. It is particularly useful for
+permanently clipping parts of a molecular surface. This will make a
+partial surface cast better shadows [<em>Note, once clipped, an object
+cannot be unclipped in this version</em>].
+
+</dl>
+
+Once, texture coordinates have been generated, you can apply a texture
+from the <code>Textures</code>. The origin of the texture coordinates
+is at bottom left, with <i>u</i> running to the right and <i>v</i>
+running upwards.
+
+<p>After calculating texture coordinates the minima and maxima of the
+property values will be shown in the spinboxes at the bottom of the
+control. You can change the values here to vary how the texture map is
+fitted to the calculated properties.
+
+<h4 class="break">Examples of Texture Mapped Properties</h4>
+
+<table width=640 align=center>
+<tr>
+<td><a href="images/protein_lipophilicity640x480.png">
+	      <img src="images/protein_lipophilicity.png"></a></td>
+<td><a href="images/protein_electrostatic640x480.png">
+	      <img src="images/protein_electrostatic.png"></a></td>
+</tr>
+<tr>
+<td><a href="images/protein_curvature640x480.png">
+	      <img src="images/protein_curvature.png"></a></td>
+<td><a href="images/partial_lipophilicity640x480.png">
+	      <img src="images/partial_lipophilicity.png"></a></td>
+</td>
+</tr>
+</table>
+
+<h3>Lights</h3>
+
+The controls in the lights tab allow you to change the lighting model
+of the scene. To select a light, click on it on the circular control.
+It should turn yellow when it is selected, and the controls to the
+right will reflect its current settings. You can drag the light around
+on the circular control to reposition it. You can also slide the
+various intensity controls to change its strength and highlight
+contribution. OpenAstexViewer currently supports a global material type so
+all objects are illuminated using the current light settings.
+
+<p>The ambient control is for the whole scene, not for each light.
+Too much ambient light will make the shading very washed out.
+
+<p>The Cartoon button will switch to a lighting model that produces a
+simple cartoon style shading model. This only works well for spheres
+at the moment, but lets you produce simple color pictures like those
+of the Molecule of the Month pages at the RCSB web site.
+
+<!--#include file="footer.inc" -->

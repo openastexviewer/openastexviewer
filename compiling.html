@@ -1,0 +1,79 @@
+<!--#set var="TITLE" value="Compiling OpenAstexViewer" -->
+<!--#include file="header.inc" -->
+
+<h3>Compiling the Main Source Code</h3>
+
+<p>If you wish to compile your own version of OpenAstexViewer or modify the source code, you can download a
+ZIP file from <a href=download.html>here</a>.
+
+<p>Unpack the ZIP file into your preferred directory. A directory called OpenAstexViewer will be created.
+Within this directory is a subdirectory called <i>src</i>. This contains the OpenAstexViewer source code.
+
+<p>Also in the <i>src</i> directory are tools for compiling OpenAstexViewer. Under Microsoft Windows the
+compilation instructions are as follows.
+
+<ol>
+<li>Compile the OpenAstexViewer scripting language interpreter.
+
+<pre>
+compile_parser.bat
+</pre>
+
+<li>Compile the OpenAstexViewer source code
+
+<pre>
+compile_openastexviewer.bat
+</pre>
+
+</ol>
+
+<p>The final stage will have created a jar file called <i>OpenAstexViewer.jar</i>. This should contain all of
+the code and resources necessary to run OpenAstexViewer.
+
+<p>An example of how to run OpenAstexViewer as an application is given in <i>run_openastexviewer.bat</i>.
+
+<h3>Compiling the OpenAstexViewer Renderer Class</h3>
+
+<p>Most of the source code for OpenAstexViewer is supplied as standard Java source code, which can be compiled with essentially any
+Java compiler.
+
+<p>The exception to this is the astex.Renderer class, which is preprocessed from the file <i>astex/Renderer.j</i> by the C
+preprocessor. This is to allow simplification and better performance of some parts of the graphics library. The source code
+distribution contains the preprocessed version of the code, and so you do not need to install any additional tools if you are not
+planning to make changes to the rendering components.
+
+<p>If you wish to make changes to the OpenAstexViewer Renderer class you must edit the file <i>astex/Renderer.j</i> and preprocess it
+using the <i>compile_renderer.bat</i> file. After this, you should be able to compile OpenAstexViewer using the instructions
+described above.
+
+<p>You will <b>need</b> to have a working C preprocessor for this stage. If you are compiling under linux you will almost certainly
+have this available already.  If you are compiling under windows you should install one of the following sets of tools
+
+<dl>
+
+<dt><url=http://www.cygwin.com/>Cygwin </url></dt>
+<dd>This is an application that will install a Unix shell that you can use for other many tasks. The C preprocessor (<i>cpp</i>) is in the directory <i>c:\cygwin\bin\cpp</i> if you follow the standard installation procedure. There is a fairly automated<url=http://www.cygwin.com/setup.exe>installation</url> procedure available for Cygwin. To gain access to the C preprocessor in a Windows command shell add the directory <i>c:\cygwin\bin</i> to your path.
+
+<dt><url=http://www.mingw.org/>MinGW</url></dt>
+<dd>This is a set of tools (Minimalist GNU for Windows) that will install compilers and other files for compiling programs under windows. This will install a working C preprocessor that can be used for the Renderer class.
+</dl>
+
+When you have installed the compiler tools of your choice, you should add the directory containing the C preprocessor to your Windows PATH.
+
+<ol>
+<li>Right click on the 'My Computer' on the desktop.
+<li>Choose the Advanced tab.
+<li>Click on Environment Variables near the bottom of the tab.
+<li>Scroll through the System variables section till you find Path.
+<li>Select Path and then click Edit.
+<li>Scroll to the end of the definition and Add
+;c:\cygwin\bin
+to the definition (note, use the actual directory where <i>cpp</i> is installed if it is different)
+<li>Press OK
+</ol>
+
+Now any new Windows command shells you open should have <i>cpp</i> available. Test this by typing <i>cpp</i> in a new window.
+
+<p>
+
+<!--#include file="footer.inc" -->

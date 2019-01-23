@@ -1,0 +1,1738 @@
+<!--#set var="TITLE" value="OpenAstexViewer Scripting Language" -->
+<!--#include file="header.inc" -->
+
+<h3>Table of Contents</h3>
+
+<div class=doctext>
+<ul>
+<li><b><a href=#molecules>Loading and Deleting Molecules</a></b>
+<li><b><a href=#maps>Loading and Deleting Maps and Grids</a></b>
+<li><b><a href=#display>Display Styles for Atoms and Bonds</a></b>
+<li><b><a href=#coloring>Coloring Atoms</a></b>
+<li><b><a href=#labels>Labels and Distances</a></b>
+<li><b><a href=#view>Controlling the View</a></b>
+<li><b><a href=#objects>Creating Graphical Objects</a></b>
+<li><b><a href=#manipulating>Manipulating Graphical Objects</a></b>
+<li><b><a href=#property>Property Calculations and Texture Mapping</a></b>
+<li><b><a href=#selections>Atom Selections</a></b>
+<li><b><a href=#animation>Animation Commands</a></b>
+<li><b><a href=#misc>Miscellaneous Scripting Commands</a></b>
+</ul>
+
+<h3><a href=#top name=molecules>Loading and Deleting Molecules</a></h3>
+
+<p> OpenAstexViewer can read molecules from a variety of common file
+formats.  These include PDB files, MDL mol files and to a limited
+extent Sybyl mol2 files. If the file name ends with .gz then it will
+be assumed to have been compressed with gzip.
+
+If OpenAstexViewer is running as an applet it will attempt to locate files
+in any of the places that are allowed. This includes on the server, or
+in the Jar file that OpenAstexViewer was downloaded in. It will also check
+to see if it can find a gzip'ed version of the file in any of these
+locations.
+
+It should be noted that applets cannot usually read or write files
+from the local disk of the machine that is running the applet. It is
+possible to change this behaviour in Internet Explorer running on
+Windows, without resorting to the use of signed applets. This is
+described in detail in a later section.
+
+<dl>
+
+<dt>molecule load <em>name</em> <em>file_or_url</em></dt>
+
+<dd>This is the basic command to load a molecule into OpenAstexViewer. The
+<em>name</em> will be used to refer to this molecule in future
+operations. The name may be optionally quoted in either single or
+double quotes (valid names are discussed in detail later on). The
+final parameter is a string that refers to a filename or a URL. Note
+there are many limitations on what files/URL's can be read by a
+standard applet (this is discussed in detail later on). Errors are not
+handled gracefully, and will usually result in error messages written
+to the console or the Java console if running as an applet.
+</dd>
+
+<dt>molecule lazy <em>name</em> <em>file_or_url</em></dt>
+
+<dd>This variant on the molecule load command will only load the
+molecule if one by this name doesn't already exist. This is usually
+used as a convenience when a web application doesn't know if a target
+molecule has already been loaded.
+</dd>
+
+<dt>molecule remove <em>pattern</em></dt>
+
+<dd>This command removes the molecules whose names match the specified
+pattern.  The pattern can consist of simple wildcard characters and
+ranges (see later for a full description of the allowed patterns), but
+does not support full regular expressions.
+</dd>
+
+
+<dt>molecule display <em>pattern</em> {on/off/toggle}</dt>
+
+<dd>Change the way a molecule is displayed. Accepted values of action
+are <code>on</code>, <code>off</code> and <code>toggle</code>. The
+<code>toggle</code> option will turn a molecule on if it is off and
+off if it is on. Molecules that are off do not contribute to the
+graphics display at all (note that graphical objects that are derived
+from a molecule are not affected by this setting, but lines, spheres,
+cylinders, distances, labels etc. are affected).
+</dd>
+
+<dt>write -molecule <em>name</em> [options]
+
+<dd> This new style command provides capabilities for writing
+molecules. Molecules can be written to files and to
+<code>url</code>'s. The supported options are
+
+<dl>
+
+<dt>-type {pdb/mol}
+
+<dd>Write the molecule out in this format. If no type is specified the
+molecule is written out in the format it was read from. In the PDB
+format CONECT records are used to keep track of bond orders, by
+specifying the bond multiple times (similar to the way RasMol does
+this). Element types are recorded on the end of the ATOM records as
+described in the PDB format description.
+
+<p>MDL <code>mol</code> files will support the basic element, bond
+orders and charges.  Behaviour is undefined when writing more than 999
+atoms or bonds to a <code>mol</code> file.
+
+<dt>-file <em>string</em>
+
+<dd>Specify the file name to write the file to. You are responsible
+for supplying the correct file extension and the path information in
+the right format for your operating system.
+
+<dt>-url <em>string</em>
+
+<dd>Write the specified molecule to a url. This is done by packing the
+molecule into a string, encoding it to protect special characters and
+<code>POST</code>'ing it to the specified <code>url</code>. By default
+the molecule is sent as the parameter <code>pdb=...</code>.
+Additional name/value pairs specified in the <code>url</code> are
+identified and posted along with the molecule. This provides a very
+powerful way for communicating changes back to a database, using only
+basic Internet standard protocols. [<em>Note, if running as an Applet
+you are usually only able to write to <code>url</code>'s on the same
+server that you were downloaded from</em>].
+
+<dt>-parameter <em>name</em>
+
+<dd>Change the parameter that is used for sending a molecule to a
+<code>url</code>. The new parameter must be a valid name for a
+URL. The default parameter name for <code>url</code> writes is
+<code>pdb</code>.
+
+</dl>
+
+</dl>
+
+<h3><a href=#top name=maps>Loading and Deleting Maps and Grids</a></h3>
+
+<dl>
+
+<dt>map load <em>name</em> <em>file_or_url</em></dt>
+
+<dd>This is the basic command to load a map into OpenAstexViewer. The
+<em>name</em> will be used to refer to this map in future
+operations. The name may be optionally quoted in either single or
+double quotes (valid names are discussed in detail later on). The
+final parameter is a string that refers to a filename or a URL. Note
+there are many limitations on what files/URL's can be read by a
+standard applet (this is discussed in detail later on). Errors are not
+handled gracefully, and will usually result in error messages written
+to the console or the Java console if running as an applet.
+</dd>
+
+<dt>map remove <em>pattern</em></dt>
+
+<dd>This command removes the maps whose names match the specified
+pattern.  The pattern can consist of simple wildcard characters and
+ranges (see later for a full description of the allowed patterns), but
+does not support full regular expressions.
+</dd>
+
+<dt>map <em>name</em> contour {0/1/2} {on/off/toggle}</dt>
+
+<dd>When a map or grid is loaded it is created with three contour
+levels.  Exactly which contour levels are turned on or off and
+displayed at which levels depends on the type of map. This command
+allows you to change which contour levels are displayed.
+</dd>
+
+<dt>map <em>name</em> contour {0/1/2} <em>number</em></dt>
+
+<dd>This command allows you to specify the contour value for
+particular contour levels.
+</dd>
+
+<dt>map <em>name</em> contour {0/1/2} <em>color</em></dt>
+
+<dd>This command allows you to specify the color for particular
+contour levels.
+</dd>
+
+<dt>map <em>name</em> contour {0/1/2} {wire/solid}</dt>
+
+<dd>This command allows you to specify how a particular contour level
+is displayed. The value <em>wire</em> will show the contour level in
+the traditional electron density style, while <em>solid</em> will
+produce a shaded, triangulated version of the contour level.
+</dd>
+
+<dt>map <em>name</em> contour {0/1/2} linewidth <em>number</em></dt>
+
+<dd>Specify the linewidth for a particular map contour. The values
+-1, -2 and -3 draw the contour in increasingly wide lines. Positive
+values will draw the lines as cylinders. A value of around 0.01 is
+about as thick as the thinnest line.
+</dd>
+
+<dt>map <em>name</em> contour {0/1/2} transparency {0-255}</dt>
+
+<dd>Specify the transparency level for a triangulated map contour.
+Level 0 is completely transparent and 255 is completely opaque.
+</dd>
+
+</dl>
+
+When a map is loaded it creates three graphical objects which it uses
+to display the various contour levels. The objects are called
+<em>name_0</em>, <em>name_1</em> and <em>name_2</em>. Extreme caution
+should be taken not to make changes to these objects (especially
+deleting them), as the map will overwrite the changes you make to
+them.
+
+<h3><a href=#top name=display>Display Styles for Atoms and Bonds</a></h3>
+
+OpenAstexViewer supports the usual styles for renderering molecules. These
+are lines, ball-and-stick, cylinders and spheres. The following
+scripting commands are used to change how a particular set of atoms
+are displayed.
+
+<dl>
+
+<dt>display <em>style</em> {on/off} <u>selection</u><dt>
+
+<dd>This command controls whether or not the specified atoms are
+displayed in the indicated style. The allowed values for
+<em>style</em> are
+
+<dl>
+
+<dt>spheres
+
+<dd>A single sphere displayed in the vdW radius of the atom with the
+current color and transparency of the atom. There are two methods for
+drawing spheres. The first uses a bitmap which is very fast, allowing
+even the biggest structures to be rendered as spheres in real
+time. The second uses analytical spheres which intersect better but
+are much slower. This is a global setting which applies to all spheres
+(in graphical objects as well) and is described in View Settings.
+
+<dt>cylinders
+
+<dd>A sphere capped cylinder (capsule) is drawn to represent all bonds
+between atoms that have the cylinder style. Each half of the cylinder
+is drawn in the color of the atom, and the current cylinder radius is
+used. It should be noted that cylinders cannot be transparent in the
+current version of OpenAstexViewer. If a bond has a marked bond order
+(e.g. it came from an SD file) then the bond order will be shown. If a
+double bond lies in a ring then a detail line is drawn inside the most
+appropriate ring. Exocylic double bonds have their detail drawn in the
+plane of one of the sp2 atoms they are connected to.
+
+<dt>sticks
+
+<dd>Colored spheres are drawn for each atom, and a single color
+stick, usually of a slightly thinner radius is drawn for each bond
+between atoms that have the <em>sticks</em> display style. No bond
+order indicators are drawn, and sticks cannot be made transparent.
+
+<dt>lines
+
+<dd>This is the default display style for all atoms. The lines are
+drawn in the color of the atoms they connect, and can have different
+line widths.  Bond order indicators are drawn in the same way that
+they are for the <em>cylinder</em> display style.
+
+</dl>
+
+</dd>
+
+<dt>vdw <em>number</em> <u>selection</u><dt>
+
+<dd>Change the vdW radius of the specifed atoms. Note that the number
+is an absolute value rather than a scale factor. This is sometimes
+inconvenient and will hopefully be addressed in a future version.
+
+<dt>ball_radius <em>number</em> <u>selection</u><dt>
+
+<dd>Change the radius of the balls that are used when an atom is
+displayed in ball-and-stick style. Again this is an absolute value.
+
+<dt>stick_radius <em>number</em> <u>selection</u><dt>
+
+<dd>Change the radius of the sticks that are used when an atom is
+displayed in ball-and-stick style. Again this is an absolute value.
+
+
+<dt>cylinder_radius <em>number</em> <u>selection</u><dt>
+
+<dd>Change the radius of the tubes that are drawn when an atom is
+displayed in <em>cylinder</em> style. Note it is not possible to
+change the radius or the offset of the bond order details in this
+version of OpenAstexViewer.
+
+<dt>bond_width {0/1/2} <u>selection</u><dt>
+
+<dd>Change the width of the lines that are used to show bonds in
+<em>lines</em> style. Note that it is not possible to change the
+positioning of the bond order details in this version of OpenAstexViewer.
+Width 0 is the thinnest line that can be drawn.
+
+<dt>transparency {0-255} <u>selection</u><dt>
+
+<dd>Change the transparency setting of <em>spheres</em> style for the
+specified atoms. Note, 0 is completely transparent, 255 is completely
+opaque. Transparent spheres can be rather slow to draw especially if
+they are very big, so use them carefully.
+
+</dl>
+
+<h3><a href=#top name=coloring>Coloring Atoms</a></h3>
+
+Atoms can be colored in a variety of ways, on the basis of selection
+expressions or certain builtin coloring commands. Some of the builtin
+coloring commands behave directly on those atoms that are selected
+rather than taking a specific atom selection. This inconsistency will
+be fixed in a future version of OpenAstexViewer.
+
+<dl>
+
+<dt>color <em>name</em> <u>selection</u><dt>
+
+<dd>Change the color of the specified atoms. Appropriate values for
+the name are the single word color names from the X11 set (e.g. red,
+cyan, magenta, orange, peach etc.), or numeric values of the form
+'#RRGGBB' (where RR, GG and BB are hexadecimal integers) or 'R,G,B'
+(where R, G and B are integers in the range 0-255).
+
+<dt>color_by_atom<dt>
+
+<dd>Change the color of the currently selected atoms according to what
+element type they are. Carbons are made green, oxygens red, nitrogens
+blue, sulphurs yellow, phosphorus magenta, hydrogen white etc. There
+is no way to change this default coloring behaviour. Alternative
+color schemes can be created by putting sets of color selection
+commands together.
+
+<dt>color_by_chain<dt>
+
+<dd>Change the color of the currently selected atoms according to
+which chain they are in. The chains are assigned colors in order from
+the sequence green, yellow, orange, blue and red. This list is not
+changeable in the current version. More sophisticated schemes can be
+built from groups of individual color commands.
+
+<dt>color_by_bvalue<dt>
+
+<dd>Change the color of the currently selected atoms according to
+their crystallographic b-value (or b-factor). This command applies a
+fixed set of b-value cutoffs to map into a ramp of eight colors from
+blue, through white to red. The color bands are
+<ul>
+
+<li> &nbsp;&nbsp;0.0 &lt; b &lt;= 10.0 [blue], 10.0 &lt; b &lt;= 15.0,
+15.0 &lt; b &lt;= 20.0, 20.0 &lt; b &lt;= 25.0
+<li> 25.0 &lt; b &lt;= 30.0, 30.0 &lt; b &lt;= 35.0,
+35.0 &lt; b &lt;= 40.0, 40.0 &lt; b [red]
+
+</ul>
+
+<dt>color_by_bvalue_range<dt>
+
+<dd>Change the color of the currently selected atoms according to
+their crystallographic b-value (or b-factor). This command applies a
+fixed set of b-value cutoffs to map into a ramp of eight colors from
+blue, through white to red. The color bands are split evenly between
+the minimum and maximum b-value for the selected atoms.
+
+<dt>color_by_rainbow <u>selection</u><dt>
+
+<dd>Change the color of the specified atoms into a hue selected from
+the standard rainbow of colors. It should be noted that the command
+acts on the specified selection of atoms, rather than those atoms that
+are selected. Specifying the selection as 'default' will cause this
+command to behave in the same way as the other color by commands (the
+'default' selection command returns what is currently selected or
+everything if nothing is selected). The color ramp that is used goes
+backwards from blue through the colors of the rainbow to red (blue,
+green, yellow, orange, red). This color ramp is used as it is
+convenient for showing the path of a polypeptide chain (from blue at
+the N-terminus to red at the C-terminus). There is no way to specify
+an alternate color ramp.
+
+</dl>
+
+<h3><a href=#top name=labels>Labels and Distances</a></h3>
+
+A variety of label styles and distances can be shown in OpenAstexViewer.
+Labels can be applied to sets of atoms using a syntax similar to that
+found in the program molscript. Basically a format statement controls
+which attributes of each atom are placed in that atoms label.  Labels
+can be displayed in a variety of font colors and sizes. Also, a 3d
+font style is available. The command works as follows.
+
+<dl>
+
+<dt>label <em>format</em> <u>selection</u>
+
+<dd>The command applies the label specified in <em>format</em> to the
+atoms contained in <u>selection</u>. The <em>format</em> parameter is
+a mixture of plain text, tokens controlling what attributes are
+substituted and formatting information about what font size/color and
+justification to use. The meaning of the attribute tokens is explained
+in the table below, all attributes start with a % character.
+
+<table border=0 cellpadding=3>
+<tr><td nowrap><code>%a</code></td><td>The name of the atom.</td></tr>
+<tr><td nowrap><code>%A</code></td><td>The name of the atom, with greek symbols for the
+		second character of aminoacid atoms.</td></tr>
+<tr><td nowrap><code>%x</code></td><td>The <i>x</i> coordinate of the atom.</td></tr>
+<tr><td nowrap><code>%y</code></td><td>The <i>y</i> coordinate of the atom.</td></tr>
+<tr><td nowrap><code>%z</code></td><td>The <i>z</i> coordinate of the atom.</td></tr>
+<tr><td nowrap><code>%b</code></td><td>The b-factor of the atom to one decimal place.</td></tr>
+<tr><td nowrap><code>%B</code></td><td>The integer b-factor of the atom.</td></tr>
+<tr><td nowrap><code>%o</code></td><td>The occupancy of the atom.</td></tr>
+<tr><td nowrap><code>%q</code></td><td>The partial charge of the atom.</td></tr>
+<tr><td nowrap><code>%i</code></td><td>The id of the atom.</td></tr>
+<tr><td nowrap><code>%I</code></td><td>The insertion code of the atom.</td></tr>
+<tr><td nowrap><code>%r</code></td><td>The residue number of the residue, followed by the
+		insertion code if it is non-blank.</td></tr>
+<tr><td nowrap><code>%R</code></td><td>The name of the residue.</td></tr>
+<tr><td nowrap><code>%f</code></td><td>The name of the residue with only
+		the first letter as a capital.</td></tr>
+<tr><td nowrap><code>%c</code></td><td>The chain identifier.</td></tr>
+<tr><td nowrap><code>%m</code></td><td>The molecule name.</td></tr>
+<tr><td nowrap><code>%%</code></td><td>The % character.</td></tr>
+<tr><td nowrap> </td><td>All other characters are included verbatim.</td></tr>
+</table>
+
+<p>Characters that are prefixed with a '\' will be drawn in the Symbol
+font equivalent. This makes it easy to include Greek letters in
+labels.  The <code>%A</code> format statement will automatically
+substitute lower case Greek letters for the second character of
+aminoacid atom names e.g.  <code>CA</code> becomes <code>C\a</code>.
+
+<p>Additionally, the label may contain a prefix enclosed in &lt;, &gt;
+characters.  This contains instructions that will affect how the label
+is displayed, justified etc. An example label with a prefix would be
+<code>'&lt;xoff=-0.2,3d=true&gt;%a'</code>.  The formatting statements that
+can be included in the prefix are described below.
+
+<table border=0 cellpadding=3>
+<tr><td><code>xoff=</code><i>number</i></td><td>X-offset after transformation.</td></tr>
+<tr><td><code>yoff=</code><i>number</i></td><td>Y-offset after transformation.</td></tr>
+<tr><td><code>zoff=</code><i>number</i></td><td>Z-offset after transformation.</td></tr>
+<tr><td><code>color=</code><i>name</i></td><td>Color of the label.</td></tr>
+<tr><td><code>points=</code><i>integer</i></td><td>Size in points if using bitmap fonts.</td></tr>
+<tr><td><code>3d=</code><i>boolean</i></td><td>Display label in 3d font.</td></tr>
+<tr><td><code>size=</code><i>number</i></td><td>Size of characters for 3d font.</td></tr>
+<tr><td><code>radius=</code><i>number</i></td><td>Radius of lines for 3d font.</td></tr>
+<tr><td valign=top><code>justify=</code><i>string</i></td>
+<td>
+Justification style for label. Composed of the following characters (e.g. <code>bl</code> for
+bottom left).
+<table cellpadding=2>
+<tr>
+<td><code>l</code></td><td>Left justified</td>
+<td><code>r</code></td><td>Right justified</td>
+</tr>
+<tr>
+<td><code>b</code></td><td>Bottom justified</td>
+<td><code>t</code></td><td>Top justified</td>
+</tr>
+<tr>
+<td><code>v</code></td><td>Vertical center</td>
+<td><code>h</code></td><td>Horizontal center</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+
+<dt>label clear <u>selection</u>
+
+<dd>Clear the labels for the atoms specified in <u>selection</u>.
+
+<dt>distance -mode {pairs/nbpairs} -from { <u>sel1</u> }
+	-to { <u>sel2</u> } [options]
+
+<dd>Generate a distance monitor from every atom in <u>sel1</u>
+to every atom in <u>sel2</u> (distance monitors are not
+generated for atoms in common between the two selections). <i>Note,
+that the selection expressions must be enclosed in '{' and '}' when
+used in these distance commands.</i> If mode is '<code>nbpairs</code>'
+then only pairs that are not connected by 1, 2 or 3 bonds will be
+shown.  The distance creation is controlled by two additional
+parameters which affect the maximum separation of atoms that will be
+considered.
+
+<dl>
+
+<dt>-dmax <em>number</em> (default 5.0)
+
+<dd>Atoms that are more than <em>number</em>&Aring; apart do not get a
+distance monitor.
+
+<dt>-contact <em>number</em> (default 0.5)
+
+<dd>Atoms that are more than the sum of their vdW radii plus
+<em>number</em>&Aring; apart do not get a distance monitor.
+
+</dl>
+
+<dt>distance -mode centroid -from { <u>sel1</u> }
+	-to { <u>sel2</u> } [options]
+
+<dd>Generate a distance monitor from the centroid of the atoms in
+<u>sel1</u> to the centroid of the atoms in
+<u>sel2</u>. <i>Note, that the selection expressions must be
+enclosed in '{' and '}' when used in these distance commands.</i>
+
+<dt>distance -delete <em>pattern</em>
+
+<dd>Remove distance monitors whose name matches <em>pattern</em>.
+
+</dl>
+
+The appearance of the distance monitors is controlled by the additional
+options.
+
+<dl>
+
+<dt>-radius <em>number</em> (Default -1.0)
+
+<dd>The radius of the line that represents the monitor. Negative
+numbers are lines of various thickness, positive numbers indicate a
+cylinder.
+
+<dt>-on <em>number</em> (Default 0.2)
+
+<dd>The length of the dash in the distance monitors.
+
+<dt>-off <em>number</em> (Default 0.2)
+
+<dd>The length of the gap between dashes in the distance monitors.
+
+<dt>-color <em>color</em> (Default white)
+
+<dd>The color of the distance monitor.
+
+<dt>-format <em>string</em> (Default "%.2fA")
+
+<dd>The format string that controls the label of the distance
+monitor. The current distance is substituted for any floating point
+format specifier.
+
+<dt>-labelcolor <em>color</em> (Default white)
+
+<dd>The color of the string that is shown by the distance monitor.
+
+<dt>-name <em>string</em> (Default null)
+
+<dd>The name of the distance monitor.
+
+</dl>
+
+<p>The command <code>astex.MouseTracker</code> can be used to add
+labelling options that occur when the mouse is moved over atoms, or to
+change the behaviour of clicking on atoms.
+
+<dl>
+
+<dt>-mouseover <code>format</code>
+
+<dd>Generate a label for atoms as the mouse is moved over them.
+
+<dt>-mouseover null
+
+<dd>Turn off the mouseover labelling of atoms.
+
+<dt>-onclick <code>format</code>
+
+<dd>Generate a label for atoms as they are clicked.
+
+<dt>-onclick null
+
+<dd>Turn off the onclick labelling of atoms.
+
+</dl>
+
+<p>Additionally the format string can contain characters enclosed in `
+characters. This is reminiscent of the unix ` syntax, which runs the
+command between the quotes and puts the output there. In this case the
+string between the quotes is treated as a url and the contents are
+placed in the appropriate place. The url replacement is done after the
+substitution of format characters so attributes of atoms can be passed
+to urls. This allows additional data to be looked up and placed in the
+label strings.
+
+<p>e.g. the following could be used to lookup a kinase name that
+corresponds to the id of the atom.
+
+<pre>
+astex.MouseTracker -mouseover \
+        'kinase `http://path/to/cgi/lookup_kinase.cgi?id=%i`'
+</pre>
+
+<h3><a href=#top name=view>Controlling the View</a></h3>
+
+The view that is shown in the graphics window is controlled by several
+parameters. These are the rotation matrix for the current orientation,
+the radius of the view in world coordinates (which controls the scale,
+but seems more convenient this way), the position of the forward and
+back clipping planes and the position that we are looking at. The
+following combination of commands are used for manipulating the
+view. Note that the view matrix only controls the rotation part of the
+view, it does not control the scale or the view point, these are
+specified separately.
+
+<dl>
+
+</dd>
+
+<dt>center <em>number</em> <em>number</em> <em>number</em><dt>
+
+<dd>Change the position that the renderer is centered on.  It does not
+change the orientation, the radius of the view or the position of the
+clipping planes. The units for the three numbers are &Aring;'s.
+
+
+<dt>radius <em>number</em><dt>
+
+<dd>Change the radius (width) of the view. This is in effect the
+equivalent of scaling the view. It doesn't change the orientation. The
+units are &Aring;'s.
+
+
+<dt>matrix<em><br>
+&nbsp;x00 x01 x02 x03<br>
+&nbsp;x10 x11 x12 x13<br>
+&nbsp;x20 x21 x22 x23<br>
+&nbsp;x30 x31 x32 x33</em><dt>
+
+<dd>Change the view matrix. Only the components <em>x00, x01, x02,
+x10, x11, x12, x20, x21</em> and <em>x22</em> are used and should
+correspond to a rotation matrix. Currently you must specify all 16
+numbers for the syntax of the command to be correct.
+
+<dt>clip <em>number</em> <em>number</em><dt>
+
+<dd>Set the position of the clipping planes. The first number controls
+the position of the front clipping plane and the second number
+controls the position of the back clipping plane. The units are
+&Aring;'s.
+
+<dt>center <u>selection</u><dt>
+
+<dd>Set the center, radius and clipping planes so that the specified
+atoms are visible. It does not change the view matrix.  This is a
+convenient way for centering on a particular subset of atoms all in
+one go.
+
+<dt>view [options]
+
+<dd>Control various aspects of the overall graphics view. Some
+settings also control the default values that are used when generating
+offscreen images for movies, or saving images. The options that can be
+set are described below.
+
+<dl>
+
+<dt>-defaultwidth <em>number</em> (default 400)
+
+<dd>The default width of image that is generated when saving an image.
+Can be overridden at image creation time.
+
+<dt>-defaultheight <em>number</em> (default 300)
+
+<dd>The default height of image that is generated when saving an image.
+Can be overridden at image creation time.
+
+<dt>-defaultsample <em>number</em> (default 1)
+
+<dd>The default supersampling for an offscreen image. This causes the
+image to be rendered at <em>number</em>x<em>number</em> samples per
+pixel and so large numbers use a lot of memory. A value of 2 causes
+acceptable antialiasing for most images.
+
+<dt>-defaultcompress <em>boolean</em> (default <em>false</em>)
+
+<dd>Controls whether saved images are compressed using gzip.  As only
+Windows bitmap files (.bmp) can be saved this is useful, as it will
+typically compress images by a factor of five.
+
+<dt>-defaultimage <em>string</em> (default "movie/image_%04d.bmp")
+
+<dd>Specifies the default filename for movies. The frame number is
+substituted into the string using the format specification. This can
+be changed to allow for a variety of different movie filename
+conventions.
+
+<dt>-writeimage <em>string</em> (no default)
+
+<dd>Writes the current view to the specified file. If the filename is
+'default' then all of the defaults that are in effect are used to
+control the size/quality of the image. This command provides the
+mechanism to write out the screen image e.g.
+<pre>
+	view -writeimage 'screen.bmp';
+</pre>
+
+<dt>-width <em>number</em>
+
+<dd>The  width of image that is generated when saving an image.
+Can be overridden at image creation time.
+
+<dt>-height <em>number</em>
+
+<dd>The  height of image that is generated when saving an image.
+Can be overridden at image creation time.
+
+<dt>-sample <em>number</em>
+
+<dd>The supersampling for an offscreen image. This causes the image to
+be rendered at <em>number</em>x<em>number</em> samples per pixel and
+so large numbers use a lot of memory. A value of 2 causes acceptable
+antialiasing for most images.
+
+<dt>-compress <em>boolean</em>
+
+<dd>Controls whether saved images are compressed using gzip.  As only
+Windows bitmap files (.bmp) can be saved this is useful, as it will
+typically compress images by a factor of five.
+
+</dl>
+
+<p>The following options control the quality/appearance of the
+onscreen image.
+
+<dl>
+
+<dt>-background <em>color</em>
+
+<dd>Change the color of the background. Only solid colors are
+supported.  Most objects automatically fog to the background
+color. Positioning the rear clipping plane will adjust the degree of
+fog.
+
+<dt>-gradient <em>boolean</em>
+
+<dd>Make the background blend from one color at the top
+to another at the bottom. The colors are specified by
+-gradienttop and -gradientbottom (see below).
+
+<dt>-gradienttop <em>color</em>
+
+<dd>Change the gradient color for the top of the background.
+Objects will still be fogged by the current background color
+(so make this a blend between the current top and bottom gradient
+color <i>[maybe this should be done automatically]</i>.
+
+<dt>-gradientbottom <em>color</em>
+
+<dd>Change the gradient color for the bottom of the background.
+Objects will still be fogged by the current background color
+(so make this a blend between the current top and bottom gradient
+color <i>[maybe this should be done automatically]</i>.
+
+<dt>-antialias <em>boolean</em>
+
+<dd>Should the onscreen image be antialiased. This uses a 2x2 pixel
+sampling antialiasing procedure.
+
+<dt>-wuantialias <em>boolean</em>
+
+<dd>Draw antialiased lines using the Wu algorithm. This makes nice looking
+lines but doesn't interact perfectly with other object types in the scene.
+In particular there will artifacts where lines cross shaded objects. Also
+the lines only really work with a dark background as they blend colors in the
+background to achieve the smooth effect. This means that the lines will disappear
+on light backgrounds.
+
+<dt>-realspheres <em>boolean</em>
+
+<dd>If set to true, analytical spheres are used rather than
+bitmaps. The analytical spheres are slower but give better images and
+allow for transparency.
+
+<dt>-shadows <em>boolean</em>
+
+<dd>If set to true, shadows are cast on objects. Only the first light
+source casts a shadow. Shadow casting slows down rendering quite a
+bit, but simple scenes (e.g. made entirely of spheres) will still
+render almost interactively (the 1323 aminoacid atoms of PDB code
+621p, will do about 1 frame/second on a 1GHz PIII 640x480). There are
+some situations that don't render quite properly. All objects cast
+shadows as if they were opaque, which means that lines inside a
+surface all look like they are in the dark. Cylinders inside
+transparent spheres don't always render correctly.
+
+<dt>-solidfonts <em>boolean</em>
+
+<dd>If set to true, text is rendered using the solid fonts
+(constructed using the Hershey font set). They will always face
+towards the viewer and will cast shadows when necessary.
+
+<dt>-lightingmodel {normal/cartoon}
+
+<dd>If set to 'cartoon' the lighting model is adapted to produce
+pictures similar to David S. Goodsell's <a
+href="http://www.rcsb.org/pdb/static.do?p=education_discussion/molecule_of_the_month/index.html" target=_blank>Molecule
+of the Month</a> pictures at the RCSB website. These can be
+manipulated in real time and will cast shadows in a similar fashion.
+
+<dt>-ambient {0-255}
+
+<dd>This provides the ambient contribution to the lighting model.  The
+value is used for the red, green and blue contributions. This should
+arguably be part of the light commands which are described next.
+
+</dl>
+
+<dt>light {0-7} [options]
+
+<dd>Specify information about the position of one of the lights.
+Eight lights are supported. The lighting model only really supports
+white lights all of which must be point lights at infinity. The
+supported options are.
+
+<dl>
+
+<dt>-x <em>number</em>
+<dt>-y <em>number</em>
+<dt>-z <em>number</em>
+
+<dd>The direction of the light. The components are normalised, and
+all three should be specified in the same light command.
+
+<dt>-on <em>boolean</em>
+
+<dd>Set whether the light is on or off. Only light 0 casts shadows, so
+if this light is off there will be no shadows.
+
+<dt>-specularint <em>number</em>
+
+<dd>Set the specular highlight intensity for this light.
+
+<dt>-diffuseint <em>number</em>
+
+<dd>Set the diffuse intensity for this light.
+
+<dt>-phongpower <em>integer</em>
+
+<dd>Set the Phong exponent power for this light. Values from 0 to 100
+are useful.
+
+</dl>
+
+</dl>
+
+<h3><a href=#top name=objects>Creating Graphical Objects</a></h3>
+
+In addition to the atom based display styles, OpenAstexViewer allows the
+creation of a number of different represenations in graphical
+objects. These objects exist independently of all the atoms and
+molecules. This is sometimes a useful aid and other times it can be a
+little inconvenient that a particular object does not disappear when
+the group of atoms it represents is turned off.
+
+<h4>Protein Schematics (Cartoons)</h4>
+
+<dl>
+
+<dt>schematic -name <em>object</em> [options] <u>selection</u><dt>
+
+<dd>This command uses the new style OpenAstexViewer command syntax which
+makes it much simpler to implement new commands. Argument names are
+prefixed by a '-' and followed by the appropriate values.
+
+<p>The command makes a graphical object which contains a schematic
+cartoon of the selection.  The schematic is called <em>object</em> and
+this name can be used to modify the object later on. The schematics
+that are generated look a little like those that are produced by the
+program MolScript. Helices are shown as a wound ribbon, strands are
+shown as arrows and coil is shown as a narrow tube.  The schematic
+takes its color from the atoms when they are created. The secondary
+structure that is currently assigned is used to generate the
+schematic. This can be assigned by the command
+<code>secstruc</code>. <em>[Currently it is not possible to read the
+secondary structure definitions from a PDB file, hopefully this will
+be changed in the future]</em>.
+
+<p>Currently it is only possible to generate cartoons for aminoacid
+residues, and these residues must define the main backbone atoms. A
+future version will implement a different scheme that allows cartoons
+to be constructed from C&alpha; coordinates alone, or that can create
+cartoons for DNA structures.
+
+<p>The appearance of the schematic can be controlled by a large number
+of options which are outlined below. The options are grouped together
+according to which part of the schematic structure they affect:
+
+<dl>
+
+<dt>-name <em>object</em></dt>
+
+<dd>As described above this supplies the name of the generated
+graphical object.
+
+<dt>-quality {1/2/3/4/5} (default 1)</dt>
+
+<dd>This controls the overall quality of the schematic. The number of
+interpolation points and the number of points on the perimeter of the
+objects are multiplied by this number. Quality 1 has less triangles
+and will render fastest, quality 5 is the best.
+
+<dt>-colorbyss <em>boolean</em> (default false)</dt>
+
+<dd>Control how the schematic is colored. If colorbyss is
+true then each type of secondary structure is colored
+differently (typcially red for ribbon, yellow for arrow
+and white for tube). If it is false then the secondary
+structure colors are taken from the residues that
+are used in its construction.
+
+<dt>-alltube <em>boolean</em> (default false)</dt>
+
+<dd>If this option is set a curved tube is created for the entire
+polypeptide chain. This passes through the C&alpha; atoms.
+
+<dt>-ribbontangent <em>number</em> (default 5.0)</dt>
+
+<dd>Controls the length of the tangent vectors for the hermite spline
+that smooths the helical ribbons.
+
+<dt>-ribbonpoints <em>number</em> (default 8*quality)</dt>
+
+<dd>Controls the number of points that are interpolated for a
+particular residue in a helix ribbon.
+
+<dt>-ribbonwidth <em>number</em> (default 2.2)</dt>
+
+<dd>The width across the peptide plane of the helical ribbon.
+
+<dt>-ribbonminwidth <em>number</em> (default 0.4)</dt>
+
+<dd>The width across the peptide plane of the helical ribbon at each
+end. The ribbon tapers to/from this value for the last/first residue
+of each helical ribbon.
+
+<dt>-ribbonthickness <em>number</em> (default 0.15)</dt>
+
+<dd>The thickness of the helical ribbon perpendicular to the plane of
+the helix.
+
+<dt>-ribboncylinders <em>boolean</em> (default true)</dt>
+
+<dd>If the ribbon is being drawn in a square cross section this option
+controls whether or not cylinders are drawn along the edge of
+ribbon. It should be noted that this will prevent the schematic object
+being truly transparent, as the cylinders cannot be made
+transparent. If you want a transparent schematic it is best to not use
+the ribbon cylinders.
+
+<dt>-ribbonellipse <em>boolean</em> (default false)</dt>
+
+<dd>Controls whether the helical ribbons are drawn with an elliptical
+or rectangular cross section. The elliptical ones shade nicely but use
+more triangles.  If elliptical cross section ribbons are generated
+then ribbon cylinders are not produced.
+
+<dt>-ribbonellipsepoints <em>number</em> (default 12*quality)</dt>
+
+<dd>Controls the number of points that approximate the elliptical
+cross section of the helix if elliptical ribbons are generated.
+
+<dt>-ribboncolor <em>color</em> (default red)</dt>
+
+<dd>The color of ribbon sections if <code>-colorbyss</code>
+is set to true.
+
+<dt>-tubesmoothing <em>number</em> (default 1)</dt>
+
+<dd>The number of smoothing iterations that are applied to guide
+points in coil regions. If the option <code>-alltube</code> is
+specified to generate a cylindrical tube for the atoms, then no
+tubesmoothing is performed independent of the value of this parameter.
+
+<dt>-tubepoints <em>number</em> (default 4*quality)</dt>
+
+<dd>The number of points that are interpolated for each residue in a
+coil tube.
+
+<dt>-tubeperimeter <em>number</em> (default 8*quality)</dt>
+
+<dd>The number of points that are used to make the circular cross
+section of a coil tube.
+
+<dt>-tubetangent <em>number</em> (default 2.0)</dt>
+
+<dd>The length of the tangent vector used for the hermite spline
+interpolation in coil tubes.
+
+<dt>-tuberadius <em>number</em> (default 0.2)</dt>
+
+<dd>The radius of the coil tubes.
+
+<dt>-tubetaperradius <em>number</em> (default 0.1)</dt>
+
+<dd>The radius of the coil tubes at each end. The tube radius is
+tapered smoothly between the main radius and this value.
+
+<dt>-tubetaper <em>boolean</em> (default false)</dt>
+
+<dd>Should the tube be tapered at each end.
+
+<dt>-tubecolor <em>color</em> (default white)</dt>
+
+<dd>The color of tube sections if <code>-colorbyss</code>
+is set to true.
+
+<dt>-arrowsmoothing <em>number</em> (default 3)</dt>
+
+<dd>The number of guide point smoothing iterations that are
+applied to the internal residues of arrows.
+
+<dt>-arrowpoints <em>number</em> (default 4*quality)</dt>
+
+<dd>The number of spline points that are interpolated for each residue
+in a strand arrow.
+
+<dt>-arrowheadwidth <em>number</em> (default 3.6)</dt>
+
+<dd>The width of the widest part of the arrow head in a strand arrow.
+
+<dt>-arrowwidth <em>number</em> (default 2.2)</dt>
+
+<dd>The width of the body of the arrow in a strand arrow.
+
+<dt>-arrowtangent <em>number</em> (default 2.0)</dt>
+
+<dd>The length of the tangent used for the hermite spline
+interpolation for strand arrows.
+
+<dt>-arrowthickness <em>number</em> (default 0.5)</dt>
+
+<dd>The thickness of the arrow used in strand arrows.
+
+<dt>-arrowcolor <em>color</em> (default yellow)</dt>
+
+<dd>The color of arrow sections if <code>-colorbyss</code>
+is set to true.
+
+</dl>
+
+</dl>
+
+While there are many options for the <code>schematic</code> command
+the defaults will produce a reasonable schematic for most protein
+structures.
+
+Before generating a protein schematic it is usually necessary to have
+secondary structure definitions for the residues. These can be
+generated using the <code>secstruc</code> command which is outlined
+below. This allows the completely automated assignment of approximate
+secondary structure, or assignment of specific categories to groups of
+atoms.
+
+<dl>
+
+<dt>secstruc [-type {helix/strand/coil}] <u>selection</u></dt>
+
+<dd>Assign secondary structure to the specified atoms. If no type is
+specified the assignment is generated automatically following the
+algorithm of Kabsch and Sander.  This should only be used as a guide
+to the true secondary structure, but is good enough for illustrative
+figures. The residues of a particular group of atoms could be assigned
+a particular type (helix, strand or coil) by specifying the
+<code>-type</code> option. This can be used for building up a
+particular secondary structure assignment or for correcting specific
+features generated by the automatic assignment.
+
+</dl>
+
+<h4>Molecular Surfaces</h4>
+
+OpenAstexViewer can create molecular surfaces for sets of atoms. These are
+invaluable for studying the shape of binding sites and the
+interactions between different groups of atoms.
+
+<p>There are two different styles for generating molecular
+surfaces. The first is the original numerical grid based method from
+AstexViewer 1.0, with the surface displayed as a wireframe mesh. These
+have the advantage that it is easy to see underlying details through
+the surface. The second method uses the same grid based approach but
+generates a shaded triangulated surface, similar to those produced by
+the program GRASP.
+
+<p>The triangulated molecular surfaces can be operated on to change
+their transparency, coloring, the parts that are visible and to map
+atom properties and colors onto them.
+
+<p>The methods for generating the different kinds of molecular
+surface are outlined below. Some of them use a mixture of selection
+statements and groups of atoms that are already selected.
+
+<dl>
+
+<dt>surface [options] <em>name</em> <em>color</em> <u>selection</u></dt>
+
+<dd>Generate a grid based surface. The surface will be generated in
+the object called <em>name</em>, with the indicated base color. The
+surface is generated to cover the atoms that are specified in
+<u>selection</u>. However, if some of those atoms are actually
+selected the surface will be clipped to cover just those atoms. This
+procedure allows the generation of partial surfaces that correctly
+blend into the other atoms around the surface. The following options
+apply to the grid based surface generation.
+
+<dl>
+
+<dt>-probe <em>number</em> (default 1.5)</dt>
+
+<dd>The probe radius that is used for the surface generation. This is
+usually set to approximate the radius of an ideal water molecule. Some
+molecular surface programs use 1.4 as the radius.
+
+<dt>-solid <em>boolean</em> (default false)</dt>
+
+<dd>This controls whether a shaded surface is generated. The default
+is false to produce the old style wire mesh surface of OpenAstexViewer
+1.0.
+
+</dl>
+
+</dl>
+
+<h3><a href=#top name=manipulating>Manipulating Graphical Objects</a></h3>
+
+Once graphical objects have been created they can be changed in a
+number of ways. This section describes the commands that operate on
+graphical objects and the kind of effects that can be achieved using
+them [<em>Note: the ordering of the options to the object commands is
+somewhat inconsistent. Make sure you get them in the right
+order!</em>].
+
+<dl>
+
+<dt>object remove <em>pattern</em></dt>
+
+<dd>Remove the graphical objects whose name matches pattern.
+
+<dt>object load <em>name</em> <em>file_or_url</em></dt>
+
+<dd>Load a graphical object from an OpenAstexViewer tmesh file. This is a
+very simple file format that can only describe triangulated
+meshes. The details of the file are described in another section. They
+are occasionally useful for importing objects from other programs.
+
+<dt>object <em>pattern</em> display {on/off/toggle}</dt>
+
+<dd>Control whether a particular graphical object is displayed. If an
+object is not displayed it is completely skipped in the rendering
+process.
+
+<dt>object <em>pattern</em> colour <em>color</em></dt>
+
+<dd>Change the base color of objects whose name matches
+<em>pattern</em> to the specified color. This will remove texture
+attributes and other color styles. Single color graphical objects
+render significantly faster than other those that have other color
+schemes applied.
+
+<dt>object <em>pattern</em> linewidth <em>number</em></dt>
+
+<dd>Change the linewidth of the objects whose name matches
+<em>pattern</em>. The values -1, -2, -3 will draw increasingly wide
+lines. Positive values will draw the lines of the graphical object as
+cylinders. The cylinder radius is in &Aring;s so suitable values for
+a cylinder about as thick as a line are 0.01-0.02.
+
+<dt>object <em>pattern</em> backface {on/off/toggle}</dt>
+
+<dd>Turn backfacing triangles on or off for the objects whose name
+matches <em>pattern</em> ('on' means display the backfacing
+triangles). Skipping triangles that face away from the viewer can
+improve rendering speeds as typically only half the number of
+triangles are drawn. However, sometimes this is not appropriate, for
+instance when you have some kind of partial surface displayed. This
+makes the surfaces appear more correctly in those cases.
+
+<dt>object <em>pattern</em> transparency {0-255}</dt>
+
+<dd>Set the transparency level for this object. Currently the
+transparency level applies to the whole object. A future version may
+use texture values to draw variably transparent objects. It should be
+noted that 0 is completely transparent and 255 is completely
+opaque. An object with transparency of 128 should draw faster than
+ones with other transparency values. Additionally, only triangles will
+render correctly when draw transparent. [<em>In order for the
+transparency process to work correctly the triangles have to be sorted
+from front to back from the viewers position. At the moment
+OpenAstexViewer draws the triangles from front to back, which removes
+distracting internal features. It is possible that this will be made
+an option in future versions so that some objects could be drawn from
+back to front</em>].
+
+<dt>object <em>pattern</em> -map  { <u>selection</u> } -defaultcolor <em>default</em> -dmax <em>number</em></dt>
+
+<dd>Map the atom colors in the specified selection to the graphical
+object. In this fashion an object can be given an arbitrary coloring
+based on some atom based color scheme of your choosing. The color
+is actually a weighted average of nearby atoms. Points that are further
+than dmax (default 1.5) from any atoms become <em>default</em> color.
+
+</dl>
+
+<h3><a href=#top name=property>Property Calculations and Texture Mapping</a></h3>
+
+OpenAstexViewer suppports the calculation of various properties on
+graphical objects. These properties are stored in two additional
+parameters for each vertex of the object, called <i>u</i> and
+<i>v</i>. The properties can be displayed on triangulated objects
+using a technique known as texture mapping.
+
+<p>Basically, the <i>u</i> and <i>v</i> values are used as an index
+into a texture (essentially just an image). The <i>u</i> parameter is
+used as the <i>x</i> coordinate of the image and the <i>v</i>
+parameter is mapped as the <i>y</i> coordinate of the image. The
+texture is scaled so that both the <i>x</i> and <i>y</i> axes are of
+unit length. The color of each pixel is determined by looking up the
+appropriate value from the image. With this technique arbitrary values
+can be mapped onto a triangulated object.
+
+The texture mapping expects <i>u</i> and <i>v</i> texture coordinates
+to be between 0 and 1 if the pixel is to be drawn. A restricted subset
+of the texture functions available in graphics systems such as OpenGL
+is provided in OpenAstexViewer.
+
+<ol>
+
+<li> The <i>u</i> texture coordinate is clamped to the range 0 to 1
+i.e.  if <i>u</i> &lt; 0, it is set equal to 0, or if <i>u</i>
+&gt; 1 it is set equal to 1.
+
+<li> The <i>v</i> texture coordinate is clipped to the range 0 to
+1. i.e. if <i>v</i> lies outside the range 0 to 1 then the pixel is
+not drawn.
+
+</ol>
+
+As most properties will not lie in the range 0 to 1, graphical objects
+can apply scale factors to the values to bring them into this
+range. This functionality provides many useful features, such as
+displaying a color ramp that shows properties mapped onto a surface,
+allows the clipping of objects subject to other properties.
+
+The following methods are available for mapping properties onto
+graphical objects.
+
+<dl>
+
+<dt>object <em>pattern</em> texture distance {u/v} <u>selection</u></dt>
+
+<dd>This function calculates the distance to the nearest atom
+specified in <u>selection</u> and stores the value for each vertex in
+the specified texture coordinate (<i>u</i> or <i>v</i>) of the object.
+The distance texture function is usually stored in <i>v</i>, so that
+parts of an object can be clipped away based on their distance from a
+group of atoms.
+
+<dt>object <em>pattern</em> texture electrostatic {u/v} <em>number</em> <u>selection</u></dt>
+
+<dd>This function calculates the coulomb potential of the atoms
+specified in <u>selection</u> and stores the value for each vertex in
+the specified texture coordinate (<i>u</i> or <i>v</i>) of the object.
+The potential uses the <em>charge</em> attribute of each of the atoms
+and uses a distance squared dielectric constant term for atoms within
+<em>number</em>&Aring;. Charges will typically need to be specified
+for the atoms first.
+
+<dt>object <em>pattern</em> texture lipophilicity {u/v} <em>number</em> <u>selection</u></dt>
+
+<dd>This function calculates the lipophilic potential of the atoms
+specified in <u>selection</u> and stores the value for each vertex in
+the specified texture coordinate (<i>u</i> or <i>v</i>) of the object.
+The potential uses the <em>charge</em> attribute of each of the atoms
+and uses an exponential decay term within <em>number</em> &Aring; due
+to Fauchere. Lipophilic terms will typically need to be stored in the
+charge attribute of the atoms first.
+
+<dt>object <em>pattern</em> texture {urange/vrange} <em>min</em> <em>max</em></dt>
+
+<dd>Set the texture coordinate range for <i>u</i> or <i>v</i>. The
+texture coordinates are scaled such that <em>min</em> will be
+transformed to 0 and <em>max</em> will be transformed to 1. Any
+texture values that lie outside the range <em>min</em> to <em>max</em>
+will be clamped or clipped according to the rules described above.
+
+<dt>object <em>pattern</em> texture <em>name</em></dt>
+
+<dd>Set the texture map for this object. The texture object is
+specified by <em>name</em>, and the creation of these objects
+is covered in the next section.
+
+<dt>object <em>pattern</em> clip {u/v}</dt>
+
+<dd>Clip the triangles of objects whose name matches <em>pattern</em>
+such that only the region whose transformed texture coordinates lie
+within 0 to 1 is retained. Note, this permanently discards the clipped
+triangles and vertices.
+
+</dl>
+
+Texture mapping requires texture coordinates (which have been covered
+in the previous section) and a texture map. The loading or creation of
+texture maps is covered here.
+
+<p>The main source for textures in OpenAstexViewer are external image
+files. These can be read from jpegs or gifs in the current
+version. The images are resampled to 256x256 pixels, so it is best to
+use images that are of this dimension initially to avoid the
+introduction of any artifacts. If jpeg images are to be used for
+texture maps it is best to turn off all compression, otherwise the
+images will become noticeably grainy when applied to an object.
+
+<dl>
+
+<dt>texture load <em>name</em> <em>file_or_url</em></dt>
+
+<dd>Load the texture from the specified image file. It is internally
+resampled to 256x256 pixels for performance reasons.
+
+<dt>texture remove <em>name</em></dt>
+
+<dd>Remove the specified texture from OpenAstexViewer.
+
+<dt>texture -name <em>name</em> [options]</dt>
+
+<dd>This is a new syntax command for generating texture maps. Currently,
+the only options are to specify the colors of a texture ramp either
+across <i>u</i> or <i>v</i>.
+
+<dl>
+
+<dt>-coord {u/v}</dt>
+
+<dd>Specify whether the texture ramp runs along <i>u</i> or <i>v</i>.
+
+<dt>-values <em>string</em></dt>
+
+<dd>A string specifying the comma separated list of colors that will
+be evenly spaced along <i>u</i> or <i>v</i>.
+
+</dl>
+
+</dl>
+
+<h3><a href=#top name=selections>Atom Selections</a></h3>
+
+OpenAstexViewer provides a powerful scripting interface for selecting sets
+of atoms in the structures that are loaded. This is similar to the
+features that are available in many other programs, such as RasMol,
+CHARMM and other programs. It should be noted that the selection
+language is different to all of these programs.
+
+This section starts with commands that can be used to build up which
+atoms are selected in the graphical display (i.e. marked with a yellow
+dot). The section concludes with the components of the selection
+language and the way they can be grouped together with logical
+expressions to achieve complex effects.
+
+<dl>
+
+<dt>select <u>selection</u></dt>
+
+<dd>This replaces the currently selected set of atoms with those
+specified in <u>selection</u>.
+
+<dt>append <u>selection</u></dt>
+
+<dd>This appends the specified atoms to the set of atoms that are
+currently selected.
+
+<dt>exclude <u>selection</u></dt>
+
+<dd>This removes the specified selection of atoms from those
+that are currently selected.
+
+<dt>invert <u>selection</u></dt>
+
+<dd>This changes the selection status of those atoms that are
+specified in <u>selection</u>. Those atoms that were selected are made
+unselected and vice versa.
+
+<dt>define <i>groupname</i> <u>selection</u></dt>
+
+<dd>This defines a name for a set of atoms that can be reused in
+selection expressions using the 'group groupname' feature. Note the
+atoms in the group are evaluated when the definition is seen. This can
+be useful for defining complex expressions once and then using the
+results in many scripting commands.
+
+</dl>
+
+<h4>Combining Selection Expressions</h4>
+
+Selection expressions can be combined using various logical operators
+and other concepts to produce composite atom selections. These
+are described in this section.
+
+<dl>
+
+<dt><u>selection1</u> and <u>selection2</u></dt>
+
+<dd>Returns those atoms that are in both <u>selection1</u> and
+<u>selection2</u>.
+
+<dt><u>selection1</u> or <u>selection2</u></dt>
+
+<dd>Returns those atoms that are in either <u>selection1</u> or
+<u>selection2</u>.
+
+<dt>not <u>selection</u></dt>
+
+<dd>Returns those atoms that are not in <u>selection</u>.
+
+<dt>( <u>selection</u> )</dt>
+
+<dd>Groups a selection expression so that the correct logical
+expression can be formed.
+
+<dt>byresidue <u>selection</u></dt>
+
+<dd>Expands <u>selection</u> so that it contains all atoms from any
+residues that had atoms selected.
+
+<dt>sphere <em>distance</em> around <u>selection</u></dt>
+
+<dd>Expands <u>selection</u> so that it contains all atoms that lie
+within <em>distance</em> &Aring; of any of the atoms.
+
+<dt>sphere <em>distance</em> around <em>number</em> <em>number</em> <em>number</em></dt>
+
+<dd>Expands <u>selection</u> so that it contains all atoms that lie
+within <em>distance</em> &Aring; of the specified coordinate.
+
+<dt>contact <em>distance</em> <u>selection</u></dt>
+
+<dd>Expands <u>selection</u> so that it contains all atoms whose vdW
+surface is separated by less than <em>distance</em> &Aring;. <em>Note
+the inconsistent syntax compared to the <code>sphere</code>
+command</em>.
+
+<dt>graph <u>selection</u></dt>
+
+<dd>Expands <u>selection</u> so that it contains all atoms that are in
+the same connected molecular component.
+
+</dl>
+
+<h4>Selection Expressions</h4>
+
+The following selection expressions can be used to generate sets of
+atoms according to certain criteria. [<em>Note: Expressions that use a
+list of numbers can also contain expressions of the form 'id1 to id2'
+to denote a range of values</em>].
+
+<dl>
+
+<dt>id <em>id1 [id2 ...]</em>
+
+<dd>Return those atoms whose id is in the specified list. For pdb
+files the id is that this is specified in the file. Atoms from MDL mol
+files or Sybyl mol2 files are numbered sequentially from the beginning
+of the file, starting with 1.
+
+<dt>atom <em>name1 [name2 ...]</em>
+
+<dd>Return those atoms whose atom name is in the specified list of
+names. Note the names can contain wildcards in a similar fashion to
+those that can be used to identify graphical objects.
+
+<dt>element <em>z1 [z2 ...]</em>
+
+<dd>Return those atoms whose atomic number is in the list. Note you
+are sometimes at the mercy of element type identification for ligands
+that derive from PDB files. This is not usually a problem for atoms
+that originate from an MDL mol file or a Sybyl mol2 file.
+
+<dt>{x/y/z/o/b/id} {&lt;/&lt;=/&gt;/&gt;=/=} <em>number</em>
+
+<dd>Return those atoms whose attribute satisfies the expression.
+
+<dt>residue <em>n1 [n2 ...]</em>
+
+<dd>Return those atoms that are in residues whose number is in the
+list of ids. This is the residue number given in the PDB file.
+
+<dt>sequential <em>n1 [n2 ...]</em>
+
+<dd>Return those atoms that are in residues whose sequential number is
+in the list of ids.
+
+<dt>name <em>name1 [name2 ...]</em>
+
+<dd>Return those atoms that are in residues whose name is in the list
+of names.
+
+<dt>modulo <em>integer</em>
+
+<dd>Return those atoms that are in residues whose residue number
+modulo <em>integer</em> is zero. This is useful for selecting, say,
+every 10th residue in a particular aminoacid chain.
+
+<dt>insertion <em>s</em>
+
+<dd>Return those atoms that are in residues whose insertion code is
+<em>s</em>. Insertion codes are sometimes used in PDB files to
+preserve residue numbering between related protein structures.
+
+<dt>chain <em>chain1 [chain2 ...]</em>
+
+<dd>Return those atoms that are in aminoacid chains whose chain name is in
+the list of names.
+
+<dt>molecule <em>name1 [name2 ...]</em>
+
+<dd>Return those atoms that are in molecules whose name is in the list.
+The molecule names are allowed to contain wildcards according to the
+standard rules.
+
+<dt>molexact <em>name1 [name2 ...]</em>
+
+<dd>Return those atoms that are in molecules whose name is in the list.
+The molecule names are treated literally.
+
+<dt>group <i>groupname</i>
+
+<dd>Return those atoms that are in the group that was previously 'define'd.
+
+<dt>aminoacid
+
+<dd>Return those atoms that are in standard aminoacid residues.
+
+<dt>dna
+
+<dd>Return those atoms that are in standard nucleic acid residues.
+
+<dt>ions
+
+<dd>Return those atoms that are in standard ion residues.
+
+<dt>solvent
+
+<dd>Return those atoms that are in standard solvent residues.
+
+<dt>all
+
+<dd>Return all atoms.
+
+<dt>none
+
+<dd>Return no atoms. Useful for clearing the current selection
+(<code>select none;</code>).
+
+<dt>current
+
+<dd>Return the atoms that are currently selected. Useful for operating
+on a set of atoms that have been built up on the screen.
+
+<dt>default
+
+<dd>Return the atoms that are currently selected, or if no atoms are
+selected returns all atoms. Useful for commands whose default should
+be to change all atoms when none are selected.
+
+<dt>pop
+
+<dd>Return the set of atoms that was saved to the top of the stack
+with a <code>push</code> command and remove them from the stack.
+
+<dt>peek <em>integer</em>
+
+<dd>Return the set of atoms that was saved in position
+<em>integer</em> on the stack (position 0 is the top of the
+stack). The set of atoms is left on the stack.
+
+</dl>
+
+<h3><a href=#top name=animation>Animation Commands</a></h3>
+
+OpenAstexViewer provides a simple script based interface for creating
+movies. This works by building up a set of different animation
+sequences that transform the view of the molecule. Variables that
+represent the fraction through the sequence can be interpolated into
+commands that are executed at each step in an animation sequence.  The
+images are automatically written out in the default format specified
+using the <code>view</code> command. The animation operations are
+described below.
+
+<dl>
+
+<dt>animate -state 'delete'
+
+<dd>Remove all stages from the animation. This command should be
+placed at the start of the animation sequence to remove any stages
+that are currently in the animation sequence. Note that the word
+'delete' must be placed in single quotes as it is a reserved word in
+the scripting language.
+
+<dt>animate -state start -interactive <em>boolean</em>
+
+<dd>Start the current animation. If interactive is <em>true</em> then
+the animation is played in the graphics window. This is useful for
+developing the animation. If interactive is <em>false</em> the movie
+is played with each frame being written to an image file. The image
+frames need to be combined together to produce a movie. See additional
+notes on programs and methods for accomplishing this.
+
+</dl>
+
+The following commands actually place different animation actions
+in the animation sequence. There are a number of common options
+(such as number of steps and command to execute) that are
+described at the end.
+
+<dl>
+
+<dt>animate -mode rock -angle <em>number</em> -steps <em>integer</em> -command <em>string</em>
+
+<dd>Rock around the y-axis up to the specified angle. The rock goes
+from the start point to +<em>number</em> degrees, back to the start
+point, to -<em>number</em> degrees and then back to the start point
+once more. The rock uses a sinusoidal acceleration to give smooth
+start, stop and direction changes. The number of steps can be
+controlled and the commands to execute as the animation proceeds.
+
+<dt>animate -mode roll -angle <em>number</em> -steps <em>integer</em> -command <em>string</em>
+
+<dd>Roll around the y-axis the number of degrees specified. The number
+of steps can be controlled and the commands to execute as the
+animation proceeds.
+
+<dt>animate -mode command -steps <em>integer</em> -command <em>string</em>
+
+<dd>Do nothing other than execute the specified commands.
+
+<dt>animate -mode recenter -steps <em>integer</em> -command <em>string</em> [options]
+
+<dd>This is the most versatile animation command. It makes the view
+move from the current viewpoint to that defined by the options for
+this animation command. It will simultaneously move the view point,
+view width, clipping planes and interpolate the view matrices from the
+first view to the second. The matrix interploation is performed using
+quaternion spherical linear interpolation (<coce>slerp</em>), which
+produces a smooth transition from one orientation to the other. The
+positioning of the center can be described in terms of cartesian
+coordinates or an atom selection. Pressing the '<code>m</code>' key in
+the graphics window will print out an animation command that will
+recreate the current view settings (not the atom or graphical object
+display though). The options for this command are as follows.
+
+<dl>
+
+<dt>-selection <u>selection</u>
+<dt>-center <em>number number number</em>
+
+<dd>Define the center point in terms of either a selection of atoms or an
+explicit coordinate. Only one of these should be used.
+
+<dt>-radius <em>number</em>
+
+<dd>The width of the final view.
+
+<dt>-clipfront <em>number</em>
+
+<dd>The final position of the front clipping plane.
+
+<dt>-clipback <em>number</em>
+
+<dd>The final position of the back clipping plane.
+
+<dt>-matrix "x00 x01 x02 x03 x10 x11 x12 x13 x20 x21 x22 x23 x30 x31 x32 x33"
+
+<dd>The view matrix of the final orientation. Note the difference in
+format from the <code>matrix</code> command. The elements must be
+enclosed in a string, but can be space or comma separated. Only the
+3x3 part of the matrix is used to control the view.
+
+</dl>
+
+</dl>
+
+<h3><a href=#top name=misc>Miscellaneous Scripting Commands</a></h3>
+
+This section covers command that don't fit into any of the above
+categories.
+
+<dl>
+
+<dt>fetch <em>url_string</em>
+
+<dd>Cause OpenAstexViewer to call the specified <code>url</code>. Not
+enormously usefule as a scripting command, but this is how the Applet
+fetch method works. A future version may have an option to treat the
+output of <code>url</code> as a stream of OpenAstexViewer commands.
+
+<dt>run <em>file_or_url</em>
+
+<dd>Cause OpenAstexViewer to open the specified resource and execute
+it as a sequence of commands.
+
+</dl>
+
+A few settings in OpenAstexViewer are controlled with 'variables'.
+These are listed here for completeness.
+
+<dl>
+
+<dt>set symmetry {on/off}
+
+<dd>Control whether on the fly symmetry generation is active.
+This is useful in a crystallographic environment but is often
+distracting when simply viewing structures. Many scripts start
+with this command.
+
+<dt>set selectcount {on/off}
+
+<dd>Control whether the number of atoms that match selection
+expressions is printed. These are printed in the console within '['
+and ']'. They are a useful aid to see where selection expressions are
+going wrong (particularly when they inadvertantly match no atoms), but
+can be distracting if you are setting lots of atoms properties or some
+such.
+
+<dt>set bumps {on/off}
+
+<dd>Control the bump tools is active. If it is active atoms that are
+within their sum of vdW radii are labelled with a distance monitor.
+As different groups of atoms are selected the bumps update
+automatically.
+
+<dt>set bump_in_same_molecule {on/off}
+
+<dd>Controls whether bump pairs have to be between atoms in the same
+molecule.
+</div>
+
+<!--#include file="footer.inc" -->

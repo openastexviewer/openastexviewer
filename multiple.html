@@ -1,0 +1,31 @@
+<!--#set var="TITLE" value="Multiple structures" -->
+<!--#include file="header.inc" -->
+
+<applet name=av code="MoleculeViewerApplet.class"
+ archive="<!--#echo var="APPLET_JAR" -->"
+ width="<!--#echo var="APPLET_WIDTH" -->"
+ height="<!--#echo var="APPLET_HEIGHT" -->">
+<param name="appletui" value="thinlet/applet.xml">
+<param name="script" value="
+set symmetry off;
+view -wuantialias true;
+molecule load mol1 'thinlet/anhydrase/1bnu.pdb.gz';
+molecule load mol2 'thinlet/anhydrase/1bnu_1if7.pdb.gz';
+molecule load mol3 'thinlet/anhydrase/1okm.pdb.gz';
+select name AL3 or name SBR or name SAB;
+color purple not sphere 10 around current;
+color cyan atom ZN;
+dotsurface zn_surface 4 atom ZN;
+display sphere 15 around current;
+center current;
+display cylinders on current;
+select none;
+matrix
+  -0.92916   -0.14879    0.33842    0.00000
+  -0.11228    0.98577    0.12510    0.00000
+  -0.35222    0.07824   -0.93264    0.00000
+   0.00000    0.00000    0.00000    1.00000;
+">
+</applet>
+
+<!--#include file="footer.inc" -->

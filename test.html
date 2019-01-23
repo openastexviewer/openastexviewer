@@ -1,0 +1,58 @@
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>OpenAstexViewer with Java user interface</title>
+
+<link rel="stylesheet" type="text/css" href="/web/css/style.css">
+
+<style type="text/css" media="print">
+<!--
+#navigation {display:none;}
+#content { margin-left: 1em; }
+-->
+</style>
+
+
+<SCRIPT SRC="applet/openastexviewer.js"></SCRIPT>
+
+</head>
+
+<body>
+
+<div id=content>
+<h2>OpenAstexViewer with Java user interface</h2>
+
+
+<applet name=av code="MoleculeViewerApplet.class"
+ archive="OpenAstexViewerObf.jar"
+ width="770"
+ height="500">
+<param name="appletui" value="applet/example.xml">
+<param name="script" value="
+set symmetry off;
+molecule load mol0 'applet/1f0s.pdb';
+display cylinders on not (aminoacid or solvent or ions);
+display lines off not (aminoacid or solvent or ions);
+center sphere 5 around not (aminoacid or solvent or ions);
+matrix
+  -0.156379   -0.401804   -0.902274    0.000000
+   0.954605    0.172998   -0.242489    0.000000
+   0.253525   -0.899236    0.356511    0.000000
+   0.000000    0.000000    0.000000    1.000000;
+">
+</applet>
+
+<br><font size=-2>Copyright (C) 1999-2008 Astex Therapeutics Ltd.</font>
+</body>
+</html>
+

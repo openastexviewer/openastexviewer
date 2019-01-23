@@ -1,0 +1,24 @@
+<!--#set var="TITLE" value="OpenAstexViewer with Java user interface" -->
+
+<!--#include file="header.inc" -->
+
+<applet name=av code="MoleculeViewerApplet.class"
+ archive="<!--#echo var="APPLET_JAR" -->"
+ width="<!--#echo var="APPLET_WIDTH" -->"
+ height="<!--#echo var="APPLET_HEIGHT" -->">
+<param name="appletui" value="applet/example.xml">
+<param name="script" value="
+set symmetry off;
+molecule load mol0 'applet/1f0s.pdb';
+display cylinders on not (aminoacid or solvent or ions);
+display lines off not (aminoacid or solvent or ions);
+center sphere 5 around not (aminoacid or solvent or ions);
+matrix
+  -0.156379   -0.401804   -0.902274    0.000000
+   0.954605    0.172998   -0.242489    0.000000
+   0.253525   -0.899236    0.356511    0.000000
+   0.000000    0.000000    0.000000    1.000000;
+">
+</applet>
+
+<!--#include file="footer.inc" -->

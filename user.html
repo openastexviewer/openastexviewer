@@ -1,0 +1,113 @@
+<!--#set var="TITLE" value="User commands in OpenAstexViewer" -->
+<!--#include file="header.inc" -->
+
+OpenAstexViewer provides support for extending the scripting language
+with arbitrary commands. This document covers an example of this.
+
+<p>If the command part of a scripting command is not recognized a
+class file of that name is search for. If this is found an instance is
+created using reflection, and the static method handleCommand is
+called with a reference to the MoleculeViewer, the MoleculeRenderer
+and the argument list.
+
+<p>The command can do quite complicated things. The example below
+creates an instance of itself which is a subclass of GraphicalObject.
+This starts a thread which will animate the renderer. The object
+steps through the atoms that were passed as part of the command,
+and draws a green sphere in turn at the position of each atom.
+
+<p>The command would be used something like
+
+<pre>
+animated -name calpha -atoms { atom CA };
+</pre>
+
+<p>Note the '{' and '}' characters that enclose the atom selection.
+These are important for the parser in commands that have arbitrary
+argument lists.
+
+<pre>
+// Source code for the class animated
+import astex.*;
+
+public class animated extends GraphicalObject implements Runnable {
+    /** The MoleculeRenderer we will animate. */
+    public MoleculeRenderer moleculeRenderer = null;
+
+    /** The atoms. */
+    public DynamicArray atoms = null;
+
+    /** The step we are on. */
+    public int step = 0;
+
+    /** The Thread that animates us. */
+    public Thread thread = null;
+
+    /** Handle a command. */
+    public static void handleCommand(MoleculeViewer mv,
+                                     MoleculeRenderer mr,
+                                     Arguments args){
+
+	if(args.defined("-atoms")){
+	    animated animationObject = new animated();
+
+	    animationObject.atoms = (DynamicArray)args.get("-atoms");
+
+	    String name = args.getString("-name", "animationObject");
+
+	    animationObject.setName(name);
+
+	    animationObject.moleculeRenderer = mr;
+
+	    mr.renderer.addTmesh(animationObject);
+
+	    animationObject.thread = new Thread(animationObject);
+
+	    animationObject.thread.start();
+	}else{
+	    System.out.println("animated: no atoms specified");
+	}
+    }
+
+    /** Extend the render method. */
+    public void render(){
+	Renderer renderer = getRenderer();
+
+	// if we get deleted, our Renderer will get set to null
+	// and we should stop the thread
+	if(renderer == null){
+	    thread.stop();
+	    return;
+	}
+
+	if(atoms != null){
+	    Atom atom = (Atom)atoms.get(step);
+
+	    renderer.drawSphere(atom.x, atom.y, atom.z, 2.0, Color32.green, 128);
+	}
+    }
+
+    /** Implement the Runnable interface. */
+    public void run(){
+	while(true){
+	    if(atoms != null){
+		if(step >= atoms.size()){
+		    step = 0;
+		}
+
+		moleculeRenderer.repaint();
+
+		step++;
+	    }
+
+	    try {
+		Thread.sleep(2000);
+	    }catch(InterruptedException e){
+	    }
+	}
+    }
+}
+
+</pre>
+
+<!--#include file="footer.inc" -->

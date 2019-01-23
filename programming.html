@@ -1,0 +1,167 @@
+<!--#set var="TITLE" value="API Programming" -->
+<!--#include file="header.inc" -->
+
+This document provides some examples of how to get at the basic nuts
+and bolts of the API programming. The best source of examples is the
+OpenAstexViewer source code and the javadoc will describe all of the
+classes and methods.
+
+<ol>
+
+<li>With a reference to the MoleculeViewer, you need to get the
+MoleculeRenderer which actually manages the molecules.
+
+<pre>
+MoleculeRenderer mr = moleculeViewer.getMoleculeRenderer();
+</pre>
+
+<li>The MoleculeRenderer gives you access to the molecules and
+their constituents.
+
+<pre>
+int molCount = mr.getMoleculeCount()
+
+for(int i = 0; i < molCount; i++){
+    Molecule mol = mr.getMolecule(i);
+}
+</pre>
+
+Lets you get at the number and individual molecules.
+
+<p>When you have a molecule you can turn it on/off with
+mol.setDisplayed(0/1/2);
+
+<p>0 and 1 do what you would expect. 2 indicates toggle (if its on,
+turn it off and vice versa). When a molecule is off it is completely
+skipped in the renderering process.  Any distance monitors should not
+be drawn to atoms in an off molecule.<p>
+
+<li>If you just want to walk through the whole atom list for the
+MoleculeRenderer you can get an iterator, which will go through all
+molecules, chains, residues etc.
+
+<pre>
+AtomIterator ai = mr.getAtomIterator();
+
+while(ai.hasMoreElements()){
+    Atom a = ai.getNextAtom();
+}
+</pre>
+
+getNextAtom() is a convenience method that calls getNextElement and
+casts it for you.
+
+<p>a.getElement() will give you the atomic number of the atom.
+
+<p>If you want to go through the molecular data structure long hand
+for some reason you can do it like this.
+
+<pre>
+for(int m = 0; m < mr.getMoleculeCount(); m++){
+  Molecule molecule = mr.getMolecule(m);
+
+  for(int c = 0; c < molecule.getChainCount(); c++){
+     Chain chain = molecule.getChain(c);
+
+     for(int r = 0; r < chain.getResidueCount(); r++){
+        Residue residue = chain.getResidue(r);
+        int atomCount = residue.getAtomCount();
+
+        for(int a = 0; a < atomCount; a++){
+          Atom atom = residue.getAtom(a);
+        }
+     }
+  }
+}
+</pre>
+
+<li>Selecting atoms. When you have a reference to an atom just call
+setSelected(true/false). Selected atoms get the yellow dot when
+drawn. You can check if atoms are selected with isSelected();
+<p>
+
+<li>If you want a list of all the atoms that are currently selected
+(you might have been using the user interface or building up a
+selection by some other means)
+
+<pre>
+DynamicArray selectedAtoms = mr.getSelectedAtoms();
+</pre>
+
+Then you can just go through these with
+
+<pre>
+int count = selectedAtoms.size();
+
+for(int i = 0; i < count; i++){
+    Atom a = (Atom)selectedAtoms.get(i);
+}
+</pre>
+<p>
+
+<li>Display styles. This is usually all done through scriping language
+so there is no method call to do it (... obviously there should be).
+
+<p>So you get to do it directly. There is an attributes int in the
+atom. The render styles are (Atom.Displayed = lines, Atom.VDWSphere,
+Atom.Cylinder, Atom.BallAndStick) you just set them in the usual way
+
+<pre>
+Atom a;
+int style;
+
+a.attributes |= style; // to turn on
+a.attributes &= ~style; // to turn off
+</pre>
+
+There are various other methods on atom that let you change the radii
+of all the display styles.
+<p>
+
+<li>The renderer. If you want to create you own display objects you
+will need to use the actual low level renderer directly. This is referenced just as
+
+<pre>
+Renderer r = mr.renderer;
+</pre>
+
+Obviously there should be a method call for that. But more generally
+the way the MoleculeRenderer and the Renderer interact is not done
+quite right. This may well change in the near future.
+
+<p>On the renderer there are some methods for drawing different
+primitives. You should use the ones that take coordinates as double
+precision numbers. These are just world coordinates.
+
+<pre>
+drawLine(double x1, double y1, double z1,
+         double x2, double y2, double z2,
+         int rgb1, int rgb2, int pixelWidth)
+
+drawCylinder(double x1, double y1, double z1,
+             double x2, double y2, double z2,
+             int rgb1, int rgb2, double r)
+
+drawSphere(double x, double y, double z, double r,
+           int rgb, int transp)
+
+drawString(double x, double y, double z,
+           double zoff, int color, String string)
+</pre>
+
+(zoff is an offset in the z-direction that is applied post
+transformation, so you can make things like labels always appear in front
+of a vdw sphere for example- see the scripting language for the string
+prefix notation that lets you control how the string is rendered.).
+<p>
+
+<li>When you have changed anything through this API you must call
+<code>moleculeRenderer.repaint()</code>.  This causes the
+MoleculeViewer to update itself, but also tells it that it actually
+needs to regenerate the picture.  Otherwise it just copies what it had
+last time back to the Graphics object.
+
+  </body>
+</html>
+
+<!--#include file="footer.inc" -->

@@ -1,0 +1,142 @@
+<!--#set var="TITLE" value="Installing OpenAstexViewer" -->
+<!--#include file="header.inc" -->
+
+This document gives instructions for installing OpenAstexViewer as an
+application and as an applet. OpenAstexViewer is supplied as a single
+<code>jar</code> file
+(</code>OpenAstexViewer.jar</code>) that includes all of the executable
+code and a variety of other resources (such as images and data files)
+that are used by the program.
+
+<p>To use OpenAstexViewer you will need to have a Java runtime environment
+installed on your computer. OpenAstexViewer will work with Java 1.1 and
+newer versions of the Java runtime.
+
+<h2>Installing OpenAstexViewer for Windows</h2>
+
+There is no automated installer for OpenAstexViewer. However, the
+installation process is fairly simple.
+
+<p>You should decide on a location for the OpenAstexViewer <code>jar</code>
+file (OpenAstexViewer.jar). You should then edit the windows batch file
+that will run OpenAstexViewer. Typically this would be called
+<code>OpenAstexViewer.bat</code> and would look something like the
+following. You need to edit the two paths that are defined near the
+top of the file. The first is the location of the java runtime that
+will be used to run OpenAstexViewer. This can be installed on a
+network drive so that everyones OpenAstexViewer will use the same
+java runtime. The second thing you need to edit is the path to the
+location of the OpenAstexViewer jar file. This is defined by the
+CLASSPATH variable.
+
+<pre>
+@echo off
+
+set java=c:\jdk1.1.8
+
+set CLASSPATH=v:\OpenAstexViewer.jar
+
+%java%\bin\java -mx600Mb astex.MoleculeViewer %1 %2 %3 %4 %5
+</pre>
+
+<p>When you have done this you should be able to run OpenAstexViewer by
+double clicking the batch file, or by dragging a pdb or mol file onto
+the link, in Windows explorer.
+
+<p>The best way to maintain a shared installation of OpenAstexViewer is to
+setup all of the components (java, OpenAstexViewer jar file and the bat
+file) on a shared network area. Then the installation process is as
+simple as creating a short cut to the batch file on the users
+desktop. In this way the jar file or the java implementation can be
+updated centrally.
+
+<h2>Installing OpenAstexViewer for Linux</h2>
+
+A similar procedure can be used for running OpenAstexViewer as an
+application under Linux (or other Unix operating systems). In this
+case the unix command file might look something like the following.
+
+<pre>
+#!/bin/csh -f
+
+setenv JAVA	/usr/local/java/
+
+setenv CLASSPATH /usr/local/astexviewer2/OpenAstexViewer.jar
+
+$JAVA/bin/java -mx600Mb astex.MoleculeViewer $*
+</pre>
+
+<h2>Using OpenAstexViewer as a Browser Applet</h2>
+
+OpenAstexViewer will run in a browser equipped with a Java
+virtual machine. It has been most extensively tested using
+Internet Explorer version 6 on Windows 2000, but is known
+to work on other browser/platform configurations.
+
+<p>To include OpenAstexViewer in a web page, you need to create an applet
+in your html document. There is an <a
+href="../applet/index.html">example</a> of this provided in the
+distribution.
+
+<p>Essentially you create an applet that references the OpenAstexViewer
+<code>jar</code> file and the <code>MoleculeViewerApplet</code>
+class. A number of parameters can be specified to control what
+molecules are loaded and how they are displayed.
+
+<pre>
+&lt;applet
+	width="640" height="480" name="av"
+	code="MoleculeViewerApplet"
+	codebase=".."
+	archive="OpenAstexViewer.jar"&gt;
+      &lt;param name="scriptFile" value="621p.script"&gt;
+&lt;/applet&gt;
+</pre>
+
+<p>The name argument controls how the applet can be referenced in
+Javascript interfaces. In the example above you would refer to this
+applet as <code>document.av</code>.
+
+<p>The <code>codebase</code> tag indicates the location of the
+<code>jar</code> file. This must be accessible on the server that the
+webpage was downloaded from.
+
+<p>The <code>scriptFile</code> parameter specifies the name of a
+script of OpenAstexViewer commands to run at startup. Alternatively, you
+can specify a parameter called <code>script</code> whose value is an
+explicit string of OpenAstexViewer commands to run at startup.
+
+<p>The applet has a few methods that are exposed to Javascript. These
+are described in the Javadoc for the
+<a href="../javadoc/MoleculeViewerApplet.html">MoleculeViewerApplet</a>
+class. The most useful are
+
+<dl>
+
+<dt>void execute(String s)
+
+<dd>This will cause OpenAstexViewer to execute the commands passed as a string.
+
+<dt>String fetch(String url)
+
+<dd>OpenAstexViewer will open the URL and return the contents as a string.
+Default security for applets means that they can only open URL's on
+the server that they came from. The URL can be a cgi/php/jsp program
+that can carry out arbitrary actions on the server.
+
+<dt>String getView()
+
+<dd>Will return a string of OpenAstexViewer commands that will recreate
+the center, radius and orientation matrix of the current view. This
+can be useful for recreating sessions.
+
+<dt>String getColor(int x, int y)
+
+<dd>This will popup OpenAstexViewer's internal color chooser dialog centered on the specified
+x, y coordinates (care is taken to keep the dialog on screen). This is a useful way to get a
+custom color for javascript applications. The chosen color is returned in a format suitable
+for use in OpenAstexViewer scripting commands or html.
+
+</dl>
+
+<!--#include file="footer.inc" -->
